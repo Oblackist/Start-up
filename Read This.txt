@@ -1,0 +1,5 @@
+Buraya yerləşdiriləcək hər fayl mənim (Ülvi Əliyev) tərəfindən yerləşdiriləcəkdir.
+
+Burada saxlanılan hər dosya kod və ya web sayt üçün lazım olan bütün kod faylları ilk öncə test mərhələsini keçmiş dosyalar olacaqdır.
+
+Diqqətiniz üçün təşəkkürlər.
