@@ -1,0 +1,68 @@
+@import 'tailwindcss';
+
+/* Dizayn tokenləri: rəngi dəyişmək üçün yalnız burada düzəliş etmək kifayətdir */
+@theme {
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --color-brand: #2563eb;
+  --color-brand-soft: #eef4ff;
+  --color-accent: #14b8a6;
+  --color-navy: #0b1b3a;
+  --color-canvas: #f7f9fc;
+  --color-canvas-dark: #070d18;
+  --color-surface-dark: #111c33;
+  --color-surface-dark-alt: #162544;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: #0f172a;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  .dark body {
+    background-color: var(--color-canvas-dark);
+    color: #e2e8f0;
+  }
+}
+
+/* Custom subtle elevation shadows per design specification */
+.shadow-calm {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.shadow-calm-lg {
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.09);
+}
+
+.dark .shadow-calm {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.dark .shadow-calm-lg {
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+}
+
+/* Smooth custom scrollbars for focused study sessions */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
