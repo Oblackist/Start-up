@@ -3,6 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      try {
+        var t = localStorage.getItem('ca-theme');
+        if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    </script>
     <title>Career Arena · Exam Arena | Buraxılış İmtahanlarına Hazırlıq</title>
     <meta name="description" content="9–11-ci sinif şagirdləri üçün buraxılış imtahanlarına hazırlıq platforması: qiymətləndirmə, mövzu üzrə analiz, fərdi məşq və inkişaf paneli." />
     <meta property="og:title" content="Career Arena · Exam Arena | Buraxılış İmtahanlarına Hazırlıq" />

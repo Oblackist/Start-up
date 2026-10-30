@@ -16,8 +16,8 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
   progress,
   size = 120,
   strokeWidth = 10,
-  color = '#2563EB',
-  trackColor = '#E2E8F0',
+  color = 'var(--ring)',
+  trackColor = 'var(--ring-track)',
   label,
   sublabel,
   showPercent = true,
@@ -61,17 +61,17 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
       {/* Central Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center select-none px-2">
         {showPercent && (
-          <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white tabular-nums">
+          <span className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white tabular-nums">
             {clampedProgress}%
           </span>
         )}
         {label && (
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
+          <span className="text-xs font-medium text-stone-500 dark:text-stone-400 mt-0.5 leading-tight">
             {label}
           </span>
         )}
         {sublabel && (
-          <span className="text-[11px] text-teal-600 dark:text-teal-400 font-semibold mt-0.5">
+          <span className="text-[11px] text-sage-600 dark:text-sage-400 font-semibold mt-0.5">
             {sublabel}
           </span>
         )}

@@ -1,4 +1,14 @@
-export type ScreenType = 'landing' | 'subjects' | 'test' | 'result' | 'practice' | 'dashboard';
+export type ScreenType =
+  'landing' | 'subjects' | 'test' | 'result' | 'practice' | 'dashboard' | 'login' | 'register';
+
+export type Grade = 9 | 10 | 11;
+
+export interface AuthUser {
+  id: string;
+  fullName: string;
+  email: string;
+  grade: Grade;
+}
 
 export type SubjectId = 'math' | 'aze' | 'eng';
 
