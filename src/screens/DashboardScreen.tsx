@@ -27,7 +27,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onSelectScreen
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join('');
-  const profileMeta = user ? `${user.grade}-ci sinif` : '11-ci sinif · Bakı şəhəri';
+  const profileMeta = user ? user.email : '11-ci sinif · Bakı şəhəri';
   const [sidebarItem, setSidebarItem] = useState<string>('panel');
   const [dailyTaskDone, setDailyTaskDone] = useState<boolean>(false);
 
@@ -60,7 +60,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onSelectScreen
   const areaD = `${pathD} L ${points[points.length - 1].x} ${chartHeight - paddingY} L ${points[0].x} ${chartHeight - paddingY} Z`;
 
   return (
-    <div className="w-full min-h-screen bg-canvas dark:bg-canvas-dark text-ink dark:text-paper py-8 px-4 sm:px-6 lg:px-8 transition-colors">
+    <div className="w-full flex-1 bg-canvas dark:bg-canvas-dark text-ink dark:text-paper py-8 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* SLIM LEFT SIDEBAR */}
         <aside className="lg:col-span-3 bg-surface dark:bg-surface-dark rounded-[20px] p-6 border border-stone-200 dark:border-stone-800 shadow-calm flex flex-col justify-between h-fit lg:sticky lg:top-24">

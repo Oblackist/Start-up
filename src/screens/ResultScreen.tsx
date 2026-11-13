@@ -1,396 +1,420 @@
-import React, { useState } from 'react';
-import { ScreenType } from '../types';
-import { ProgressRing } from '../components/ProgressRing';
-import { RESULT_MISTAKES_DATA } from '../data/examData';
+import React, { useMemo, useState } from 'react';
 import {
-  CheckCircle2,
-  XCircle,
-  HelpCircle,
-  Clock,
-  ArrowRight,
-  Bookmark,
   ChevronDown,
-  ChevronUp,
-  Sparkles,
-  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  Info,
+  MinusCircle,
+  OctagonX,
   RotateCcw,
+  Star,
+  XCircle,
 } from 'lucide-react';
+import type { ScreenType } from '../types';
+import { ProgressRing } from '../components/ProgressRing';
+import { PlagiarismReport } from '../components/PlagiarismReport';
+import { useExam } from '../context/ExamContext';
+import { buildDemoSession, evaluate, formatClock, MAX_VIOLATIONS } from '../utils/exam';
+import type { AnswerStatus } from '../utils/exam';
 
 interface ResultScreenProps {
   onSelectScreen: (screen: ScreenType) => void;
 }
 
+const STATUS_META: Record<
+  AnswerStatus,
+  { label: string; icon: typeof CheckCircle2; tile: string; chip: string; text: string }
+> = {
+  correct: {
+    label: 'Doğru',
+    icon: CheckCircle2,
+    tile: 'bg-sage-100 dark:bg-sage-950/60 border-sage-400 dark:border-sage-700 text-sage-800 dark:text-sage-200',
+    chip: 'bg-sage-50 dark:bg-sage-950/50 border-sage-200 dark:border-sage-900/60 text-sage-700 dark:text-sage-300',
+    text: 'text-sage-700 dark:text-sage-300',
+  },
+  wrong: {
+    label: 'Yanlış',
+    icon: XCircle,
+    tile: 'bg-red-100 dark:bg-red-950/50 border-red-400 dark:border-red-800 text-red-800 dark:text-red-200',
+    chip: 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300',
+    text: 'text-red-700 dark:text-red-300',
+  },
+  blank: {
+    label: 'Boş',
+    icon: MinusCircle,
+    tile: 'bg-transparent border-dashed border-stone-400 dark:border-stone-500 text-stone-500 dark:text-stone-400',
+    chip: 'bg-stone-100 dark:bg-inset-dark border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-300',
+    text: 'text-stone-500 dark:text-stone-400',
+  },
+};
+
+type Filter = 'all' | AnswerStatus;
+
 export const ResultScreen: React.FC<ResultScreenProps> = ({ onSelectScreen }) => {
-  const mistakes = RESULT_MISTAKES_DATA;
-  const [expandedMistakeId, setExpandedMistakeId] = useState<number | null>(1);
-  const [isSaved, setIsSaved] = useState<boolean>(false);
+  const { session } = useExam();
+  const data = useMemo(
+    () => (session && session.status === 'finished' ? session : buildDemoSession()),
+    [session],
+  );
+  const ev = useMemo(() => evaluate(data), [data]);
+
+  const [filter, setFilter] = useState<Filter>('all');
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  const terminated = data.endReason === 'tab-switch';
+  const visible = ev.items.filter((i) => filter === 'all' || i.status === filter);
+
+  const stats: { status: AnswerStatus; value: number; hint: string }[] = [
+    {
+      status: 'correct',
+      value: ev.correct,
+      hint: `${ev.total ? Math.round((ev.correct / ev.total) * 100) : 0}% dəqiqlik`,
+    },
+    {
+      status: 'wrong',
+      value: ev.wrong,
+      hint: `${ev.total ? Math.round((ev.wrong / ev.total) * 100) : 0}% xəta`,
+    },
+    {
+      status: 'blank',
+      value: ev.blank,
+      hint: `${ev.total ? Math.round((ev.blank / ev.total) * 100) : 0}% cavabsız`,
+    },
+  ];
+
+  const filters: { id: Filter; label: string; count: number }[] = [
+    { id: 'all', label: 'Hamısı', count: ev.total },
+    { id: 'correct', label: 'Doğru', count: ev.correct },
+    { id: 'wrong', label: 'Yanlış', count: ev.wrong },
+    { id: 'blank', label: 'Boş', count: ev.blank },
+  ];
 
   return (
-    <div className="w-full min-h-screen bg-canvas dark:bg-canvas-dark text-ink dark:text-paper py-12 px-4 sm:px-6 lg:px-8 transition-colors">
-      <div className="max-w-[1440px] mx-auto space-y-10">
-        {/* Title & Context */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200 dark:border-stone-800">
+    <div className="w-full flex-1 bg-canvas dark:bg-canvas-dark text-ink dark:text-paper py-10 px-4 sm:px-6 lg:px-8 transition-colors">
+      <div className="max-w-[1440px] mx-auto space-y-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-stone-200 dark:border-stone-800">
           <div>
-            <div className="text-xs font-semibold text-brand-fg dark:text-brand-400 tracking-wider uppercase mb-1">
-              Sınaq İmtahanı Hesabatı
+            <div className="text-xs font-semibold text-brand-fg tracking-wider uppercase mb-1">
+              Sınaq imtahanı hesabatı
             </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-ink dark:text-white tracking-tight">
               Nəticə və Təhlil
             </h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap gap-2.5">
+            <button
+              onClick={() => onSelectScreen('ranking')}
+              className="h-11 px-5 rounded-[12px] border border-stone-300 dark:border-stone-700 text-sm font-semibold flex items-center gap-2 hover:border-brand-fg hover:text-brand-fg transition-colors"
+            >
+              <Star className="w-4 h-4" /> İmtahanı qiymətləndir
+            </button>
             <button
               onClick={() => onSelectScreen('test')}
-              className="h-10 px-4 rounded-[12px] bg-stone-100 dark:bg-surface-dark hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-semibold transition-colors flex items-center gap-1.5"
+              className="h-11 px-5 rounded-[12px] border border-stone-300 dark:border-stone-700 text-sm font-semibold flex items-center gap-2 hover:border-brand-fg hover:text-brand-fg transition-colors"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Yenidən test ver</span>
+              <RotateCcw className="w-4 h-4" /> Yenidən test ver
             </button>
             <button
               onClick={() => onSelectScreen('dashboard')}
-              className="h-10 px-4 rounded-[12px] bg-brand hover:bg-brand-700 text-white text-xs font-semibold transition-colors shadow-sm"
+              className="h-11 px-5 rounded-[12px] bg-brand hover:bg-brand-700 dark:bg-brand-400 dark:hover:bg-brand-300 dark:text-ink text-white text-sm font-semibold transition-colors"
             >
               İnkişaf panelinə keç
             </button>
           </div>
         </div>
 
-        {/* TOP SECTION: Readiness Ring + 4 Stat Cards + Weak Topics Column */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* LEFT 7 COLS: Readiness Ring + 4 Stat Cards */}
-          <div className="lg:col-span-7 bg-surface dark:bg-surface-dark rounded-[20px] p-8 border border-stone-200 dark:border-stone-800 shadow-calm space-y-8">
-            {/* Large Readiness Ring 85% */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pb-6 border-b border-stone-100 dark:border-stone-800">
-              <div className="space-y-2 text-center sm:text-left">
-                <span className="text-xs font-bold uppercase tracking-wider text-stone-400">
-                  Ümumi Göstərici
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-ink dark:text-white">
-                  Hazırlıq səviyyəsi
-                </h2>
-                <p className="text-sm text-stone-500 dark:text-stone-400 max-w-xs">
-                  Riyaziyyat fənni üzrə buraxılış imtahanı suallarının 85%-nə hazırsan.
-                </p>
-                <div className="pt-1">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sage-50 dark:bg-sage-950/50 text-accent dark:text-sage-400 text-xs font-bold border border-sage-200/60 dark:border-sage-900/60">
-                    +12% əvvəlki testə görə
-                  </span>
-                </div>
-              </div>
-
-              <div className="shrink-0 p-3 bg-stone-50 dark:bg-inset-dark rounded-2xl border border-stone-100 dark:border-stone-800">
-                <ProgressRing
-                  progress={85}
-                  size={150}
-                  strokeWidth={14}
-                  color="var(--ring)"
-                  trackColor="var(--ring-track)"
-                  label="Hazırlıq"
-                  sublabel="Yüksək nəticə"
-                />
-              </div>
-            </div>
-
-            {/* Four Stat Cards with Different Values */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {/* Stat 1: Düzgün 17 */}
-              <div className="p-4 rounded-2xl bg-sage-50/60 dark:bg-sage-950/20 border border-sage-100 dark:border-sage-900/40 text-center">
-                <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-sage-700 dark:text-sage-400 mb-1">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Düzgün</span>
-                </div>
-                <div className="text-2xl font-extrabold text-sage-800 dark:text-sage-300 tabular-nums">
-                  17
-                </div>
-                <div className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                  85% dəqiqlik
-                </div>
-              </div>
-
-              {/* Stat 2: Səhv 2 */}
-              <div className="p-4 rounded-2xl bg-red-50/60 dark:bg-red-950/20 border border-red-100 dark:border-red-900/40 text-center">
-                <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-red-600 dark:text-red-400 mb-1">
-                  <XCircle className="w-4 h-4" />
-                  <span>Səhv</span>
-                </div>
-                <div className="text-2xl font-extrabold text-red-700 dark:text-red-400 tabular-nums">
-                  2
-                </div>
-                <div className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                  10% xəta
-                </div>
-              </div>
-
-              {/* Stat 3: Boş 1 */}
-              <div className="p-4 rounded-2xl bg-stone-50 dark:bg-surface-dark-alt border border-stone-200/80 dark:border-stone-800 text-center">
-                <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-stone-500 dark:text-stone-400 mb-1">
-                  <HelpCircle className="w-4 h-4" />
-                  <span>Boş</span>
-                </div>
-                <div className="text-2xl font-extrabold text-stone-700 dark:text-stone-300 tabular-nums">
-                  1
-                </div>
-                <div className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                  5% cavabsız
-                </div>
-              </div>
-
-              {/* Stat 4: Sərf olunan vaxt 31:40 */}
-              <div className="p-4 rounded-2xl bg-brand-50/60 dark:bg-brand-950/20 border border-brand-100 dark:border-brand-900/40 text-center">
-                <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-brand-fg dark:text-brand-400 mb-1">
-                  <Clock className="w-4 h-4" />
-                  <span>Sərf vaxtı</span>
-                </div>
-                <div className="text-2xl font-extrabold text-brand-fg dark:text-brand-300 font-mono tabular-nums">
-                  31:40
-                </div>
-                <div className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                  Orta 1:35/sual
-                </div>
-              </div>
-            </div>
+        {data.isDemo && (
+          <div
+            role="note"
+            className="rounded-[16px] border border-stone-300 dark:border-stone-700 bg-surface dark:bg-surface-dark p-4 flex gap-3 text-sm text-stone-600 dark:text-stone-300"
+          >
+            <Info className="w-5 h-5 shrink-0 text-brand-fg mt-0.5" />
+            <p>
+              Bu <b>nümunə nəticədir</b>. Hələ imtahan verməmisən. İmtahan verdikdən sonra burada öz
+              nəticən görünəcək.
+            </p>
           </div>
+        )}
 
-          {/* RIGHT 5 COLS: "Zəif mövzular" */}
-          <div className="lg:col-span-5 bg-surface dark:bg-surface-dark rounded-[20px] p-8 border border-stone-200 dark:border-stone-800 shadow-calm space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-amber-500" />
-                <h3 className="text-lg font-bold text-ink dark:text-white">Zəif mövzular</h3>
-              </div>
-              <span className="text-xs text-stone-400 font-medium">Prioritet sıra ilə</span>
-            </div>
-
-            <div className="space-y-4">
-              {/* Topic 1: Tənliklər */}
-              <div className="p-4 rounded-xl bg-stone-50 dark:bg-inset-dark border border-stone-200/80 dark:border-stone-800 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-bold text-stone-900 dark:text-white">
-                      Tənliklər sistemi
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300">
-                      Yüksək xəta
-                    </span>
-                  </div>
-                  <p className="text-xs text-stone-500 dark:text-stone-400">
-                    54% dəqiqlik · 5 səhv
-                  </p>
-                </div>
-                <button
-                  onClick={() => onSelectScreen('practice')}
-                  className="text-xs font-bold text-brand-fg dark:text-brand-400 hover:underline flex items-center gap-1"
-                >
-                  <span>Məşq et</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* Topic 2: Faizlər */}
-              <div className="p-4 rounded-xl bg-stone-50 dark:bg-inset-dark border border-stone-200/80 dark:border-stone-800 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-bold text-stone-900 dark:text-white">
-                      Faiz və nisbət
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                      Orta xəta
-                    </span>
-                  </div>
-                  <p className="text-xs text-stone-500 dark:text-stone-400">
-                    62% dəqiqlik · 4 səhv
-                  </p>
-                </div>
-                <button
-                  onClick={() => onSelectScreen('practice')}
-                  className="text-xs font-bold text-brand-fg dark:text-brand-400 hover:underline flex items-center gap-1"
-                >
-                  <span>Məşq et</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* Topic 3: Həndəsə */}
-              <div className="p-4 rounded-xl bg-stone-50 dark:bg-inset-dark border border-stone-200/80 dark:border-stone-800 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-bold text-stone-900 dark:text-white">
-                      Həndəsə: Medianlar
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                      Orta xəta
-                    </span>
-                  </div>
-                  <p className="text-xs text-stone-500 dark:text-stone-400">
-                    68% dəqiqlik · 3 səhv
-                  </p>
-                </div>
-                <button
-                  onClick={() => onSelectScreen('practice')}
-                  className="text-xs font-bold text-brand-fg dark:text-brand-400 hover:underline flex items-center gap-1"
-                >
-                  <span>Məşq et</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <button
-                onClick={() => onSelectScreen('practice')}
-                className="w-full h-11 rounded-[12px] bg-brand-soft dark:bg-brand-950/40 hover:bg-brand-100 dark:hover:bg-brand-900/40 text-brand-fg dark:text-brand-300 text-xs font-bold transition-colors flex items-center justify-center gap-2"
-              >
-                <span>Bütün zəif mövzuları məşq et</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* BELOW: "Səhvlərin təhlili" ACCORDION */}
-        <div className="bg-surface dark:bg-surface-dark rounded-[20px] p-8 border border-stone-200 dark:border-stone-800 shadow-calm space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-100 dark:border-stone-800">
-            <div>
-              <h3 className="text-xl font-bold text-ink dark:text-white">
-                Səhvlərin təhlili və aydın izahlar
-              </h3>
-              <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-                Səhv cavab verdiyin sualların addım-addım həlli və qaydaları
+        {terminated && (
+          <div
+            role="alert"
+            className="rounded-[16px] border border-red-300 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 p-5 flex gap-4"
+          >
+            <OctagonX className="w-6 h-6 shrink-0 text-red-600 dark:text-red-300" />
+            <div className="space-y-1">
+              <h2 className="font-bold text-red-800 dark:text-red-200">
+                İmtahan qayda pozuntusuna görə dayandırıldı
+              </h2>
+              <p className="text-sm text-red-700 dark:text-red-300">
+                İmtahan pəncərəsindən {MAX_VIOLATIONS} dəfə çıxıldığı üçün imtahan avtomatik
+                bitirildi. Nəticə yoxlama başa çatana qədər reytinqə daxil edilmir.
               </p>
             </div>
+          </div>
+        )}
+        {data.endReason === 'time' && (
+          <div
+            role="note"
+            className="rounded-[16px] border border-amber-300 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 p-4 text-sm text-amber-800 dark:text-amber-200 flex gap-3"
+          >
+            <Clock className="w-5 h-5 shrink-0" />
+            <p>Vaxt bitdiyi üçün imtahan avtomatik təhvil verildi.</p>
+          </div>
+        )}
 
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setIsSaved(!isSaved)}
-                className={`h-10 px-4 rounded-[12px] border text-xs font-semibold transition-colors flex items-center gap-1.5 ${
-                  isSaved
-                    ? 'bg-brand-50 border-brand-200 text-brand-fg dark:bg-brand-950 dark:border-brand-900 dark:text-brand-400'
-                    : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-50'
-                }`}
-              >
-                <Bookmark className="w-3.5 h-3.5" />
-                <span>{isSaved ? 'Saxlanıldı ✓' : 'Saxla'}</span>
-              </button>
+        {/* Ümumi nəticə */}
+        <section className="bg-surface dark:bg-surface-dark rounded-[20px] border border-stone-200 dark:border-stone-800 shadow-calm p-6 sm:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-4 flex items-center gap-6">
+              <ProgressRing progress={ev.percent} size={150} strokeWidth={12} sublabel="nəticə" />
+              <div>
+                <div className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                  Ümumi bal
+                </div>
+                <div className="text-4xl font-extrabold text-ink dark:text-white">
+                  {ev.correct}
+                  <span className="text-xl text-stone-400"> / {ev.total}</span>
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+              {stats.map(({ status, value, hint }) => {
+                const meta = STATUS_META[status];
+                const Icon = meta.icon;
+                return (
+                  <div key={status} className={`rounded-xl border p-4 ${meta.chip}`}>
+                    <div className="flex items-center gap-2 text-sm font-semibold">
+                      <Icon className="w-4 h-4" /> {meta.label}
+                    </div>
+                    <div className="text-3xl font-extrabold mt-2 text-ink dark:text-white">
+                      {value}
+                    </div>
+                    <div className="text-xs mt-1 opacity-80">{hint}</div>
+                  </div>
+                );
+              })}
+              <div className="rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-inset-dark p-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-stone-600 dark:text-stone-300">
+                  <Clock className="w-4 h-4" /> Sərf olunan vaxt
+                </div>
+                <div className="text-3xl font-extrabold mt-2 font-mono text-ink dark:text-white">
+                  {formatClock(ev.usedSec)}
+                </div>
+                <div className="text-xs mt-1 text-stone-500 dark:text-stone-400">
+                  Ayrılmış: {formatClock(data.durationSec)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-              <button
-                onClick={() => onSelectScreen('practice')}
-                className="h-10 px-5 rounded-[12px] bg-brand hover:bg-brand-700 active:scale-[0.98] text-white text-xs font-semibold transition-all shadow-sm flex items-center gap-1.5"
-              >
-                <span>Fərdi məşqə keç</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+        {/* Suallar üzrə xəritə və siyahı */}
+        <section className="bg-surface dark:bg-surface-dark rounded-[20px] border border-stone-200 dark:border-stone-800 shadow-calm p-6 sm:p-8 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-ink dark:text-white">Suallar üzrə nəticə</h2>
+              <p className="text-sm text-stone-500 dark:text-stone-400">
+                Doğru, yanlış və boş cavablar rənglə və işarə ilə fərqləndirilir.
+              </p>
+            </div>
+            <div role="tablist" aria-label="Filtr" className="flex flex-wrap gap-2">
+              {filters.map((f) => (
+                <button
+                  key={f.id}
+                  role="tab"
+                  aria-selected={filter === f.id}
+                  onClick={() => {
+                    setFilter(f.id);
+                    setOpenIdx(null);
+                  }}
+                  className={`h-9 px-3.5 rounded-full border text-sm font-semibold transition-colors ${
+                    filter === f.id
+                      ? 'bg-brand text-white border-brand dark:bg-brand-400 dark:text-ink dark:border-brand-400'
+                      : 'border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:border-brand-fg'
+                  }`}
+                >
+                  {f.label} ({f.count})
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Accordion list */}
-          <div className="space-y-4">
-            {mistakes.map((m) => {
-              const isExpanded = expandedMistakeId === m.id;
+          <div className="grid grid-cols-6 sm:grid-cols-10 md:grid-cols-15 gap-2 [grid-template-columns:repeat(auto-fill,minmax(44px,1fr))]">
+            {ev.items.map((item) => {
+              const meta = STATUS_META[item.status];
+              const Icon = meta.icon;
               return (
-                <div
-                  key={m.id}
-                  className="rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden bg-stone-50/50 dark:bg-inset-dark/50 transition-all"
+                <button
+                  key={item.question.id}
+                  onClick={() => {
+                    setFilter('all');
+                    setOpenIdx(item.index);
+                    document
+                      .getElementById(`q-${item.index}`)
+                      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                  title={`Sual ${item.index + 1}: ${meta.label}`}
+                  aria-label={`Sual ${item.index + 1}: ${meta.label}`}
+                  className={`relative h-11 rounded-lg border text-sm font-bold transition-transform hover:scale-105 ${meta.tile}`}
                 >
-                  {/* Header Row */}
-                  <div
-                    onClick={() => setExpandedMistakeId(isExpanded ? null : m.id)}
-                    className="p-5 flex items-center justify-between cursor-pointer hover:bg-stone-100/50 dark:hover:bg-surface-dark-alt/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center font-bold text-xs">
-                        #{m.questionNumber}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-ink dark:text-white">
-                            Sual {m.questionNumber}
-                          </span>
-                          <span className="text-stone-300 dark:text-stone-700">·</span>
-                          <span className="text-xs text-stone-500 dark:text-stone-400">
-                            {m.topic}
-                          </span>
-                        </div>
-                        <p className="text-xs text-stone-600 dark:text-stone-400 line-clamp-1 mt-0.5">
-                          {m.questionText}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      <div className="hidden sm:flex items-center gap-3 text-xs">
-                        <span className="text-red-600 dark:text-red-400 font-medium">
-                          Sənin: {m.studentAnswer}
-                        </span>
-                        <span className="text-sage-600 dark:text-sage-400 font-bold">
-                          Düzgün: {m.correctAnswer}
-                        </span>
-                      </div>
-                      {isExpanded ? (
-                        <ChevronUp className="w-5 h-5 text-stone-400" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-stone-400" />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Expanded Body: Answers + AI İzahı Panel */}
-                  {isExpanded && (
-                    <div className="p-6 pt-2 border-t border-stone-200/80 dark:border-stone-800/80 bg-surface dark:bg-surface-dark space-y-6">
-                      {/* Answers Compare Bar */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="p-3.5 rounded-xl bg-red-50/70 dark:bg-red-950/30 border border-red-200/60 dark:border-red-900/50">
-                          <span className="text-[11px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 block mb-1">
-                            Sənin cavabın:
-                          </span>
-                          <span className="text-base font-bold text-red-700 dark:text-red-300">
-                            {m.studentAnswer} (Səhv)
-                          </span>
-                        </div>
-
-                        <div className="p-3.5 rounded-xl bg-sage-50/70 dark:bg-sage-950/30 border border-sage-200/60 dark:border-sage-900/50">
-                          <span className="text-[11px] font-bold uppercase tracking-wider text-sage-600 dark:text-sage-400 block mb-1">
-                            Düzgün cavab:
-                          </span>
-                          <span className="text-base font-bold text-sage-700 dark:text-sage-300">
-                            {m.correctAnswer} (Doğru)
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* AI İzahı Panel with Step-by-Step */}
-                      <div className="p-5 rounded-2xl bg-brand-50/50 dark:bg-inset-dark border border-brand-100 dark:border-brand-900/40 space-y-4">
-                        <div className="flex items-center gap-2 text-xs font-bold text-brand-fg dark:text-brand-400">
-                          <Sparkles className="w-4 h-4" />
-                          <span>AI İzahı və Addım-addım həll yolu</span>
-                        </div>
-
-                        <p className="text-sm text-stone-700 dark:text-stone-300 leading-relaxed font-medium">
-                          {m.aiExplanation.summary}
-                        </p>
-
-                        <div className="space-y-2 bg-surface dark:bg-surface-dark p-4 rounded-xl border border-brand-100/70 dark:border-stone-800">
-                          {m.aiExplanation.steps.map((st, i) => (
-                            <div
-                              key={i}
-                              className="text-xs text-stone-700 dark:text-stone-300 font-mono"
-                            >
-                              {st}
-                            </div>
-                          ))}
-                        </div>
-
-                        <div className="p-3 rounded-lg bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 text-xs text-amber-800 dark:text-amber-300">
-                          <span className="font-bold mr-1">Qızıl qayda:</span>
-                          {m.aiExplanation.tip}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                  {item.index + 1}
+                  <Icon className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-surface dark:bg-surface-dark rounded-full" />
+                </button>
               );
             })}
           </div>
-        </div>
+
+          <ul className="space-y-3">
+            {visible.map((item) => {
+              const meta = STATUS_META[item.status];
+              const Icon = meta.icon;
+              const open = openIdx === item.index;
+              const q = item.question;
+              return (
+                <li
+                  key={q.id}
+                  id={`q-${item.index}`}
+                  className="rounded-[16px] border border-stone-200 dark:border-stone-800 overflow-hidden"
+                >
+                  <button
+                    onClick={() => setOpenIdx(open ? null : item.index)}
+                    aria-expanded={open}
+                    className="w-full flex items-center gap-4 p-4 sm:p-5 text-left hover:bg-stone-50 dark:hover:bg-surface-dark-alt transition-colors"
+                  >
+                    <span
+                      className={`w-10 h-10 shrink-0 rounded-[10px] border flex items-center justify-center font-bold text-sm ${meta.tile}`}
+                    >
+                      {item.index + 1}
+                    </span>
+                    <span className="flex-1 min-w-0">
+                      <span className="block text-xs text-stone-500 dark:text-stone-400">
+                        {q.topic}
+                      </span>
+                      <span className="block font-semibold text-ink dark:text-white truncate">
+                        {q.text}
+                      </span>
+                    </span>
+                    <span
+                      className={`hidden sm:inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${meta.chip}`}
+                    >
+                      <Icon className="w-3.5 h-3.5" /> {meta.label}
+                    </span>
+                    <ChevronDown
+                      className={`w-5 h-5 shrink-0 text-stone-400 transition-transform ${open ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+
+                  {open && (
+                    <div className="px-4 sm:px-5 pb-5 space-y-4 border-t border-stone-200 dark:border-stone-800 pt-4">
+                      <p className="text-ink dark:text-paper font-medium">{q.text}</p>
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        <div
+                          className={`rounded-xl border p-3.5 ${STATUS_META[item.status === 'correct' ? 'correct' : item.status === 'wrong' ? 'wrong' : 'blank'].chip}`}
+                        >
+                          <div className="text-[11px] font-bold uppercase tracking-wider opacity-80">
+                            Sənin cavabın
+                          </div>
+                          <div className="font-bold mt-1">
+                            {item.chosen
+                              ? `${item.chosen}) ${q.options.find((o) => o.key === item.chosen)?.text}`
+                              : 'Cavab verilməyib'}
+                          </div>
+                        </div>
+                        <div className={`rounded-xl border p-3.5 ${STATUS_META.correct.chip}`}>
+                          <div className="text-[11px] font-bold uppercase tracking-wider opacity-80">
+                            Düzgün cavab
+                          </div>
+                          <div className="font-bold mt-1">
+                            {q.correctAnswer}){' '}
+                            {q.options.find((o) => o.key === q.correctAnswer)?.text}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="rounded-xl bg-stone-50 dark:bg-inset-dark border border-stone-200 dark:border-stone-800 p-4 space-y-2 text-sm">
+                        <p className="font-semibold text-ink dark:text-white">
+                          {q.explanation.summary}
+                        </p>
+                        <ol className="list-decimal pl-5 space-y-1 text-stone-700 dark:text-stone-300">
+                          {q.explanation.steps.map((s) => (
+                            <li key={s} className="font-mono text-[13px]">
+                              {s}
+                            </li>
+                          ))}
+                        </ol>
+                        <p className="text-xs rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-200 p-2.5">
+                          <b>Qızıl qayda:</b> {q.explanation.rule}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+            {visible.length === 0 && (
+              <li className="text-center text-sm text-stone-500 py-8">
+                Bu filtr üzrə sual yoxdur.
+              </li>
+            )}
+          </ul>
+        </section>
+
+        {/* Zəif mövzular */}
+        {ev.weakTopics.length > 0 && (
+          <section className="bg-surface dark:bg-surface-dark rounded-[20px] border border-stone-200 dark:border-stone-800 shadow-calm p-6 sm:p-8 space-y-4">
+            <h2 className="text-xl font-bold text-ink dark:text-white">Zəif mövzular</h2>
+            <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              {ev.weakTopics.slice(0, 6).map((w) => (
+                <li
+                  key={w.topicId}
+                  className="rounded-xl border border-stone-200 dark:border-stone-800 p-4 flex items-center justify-between gap-3"
+                >
+                  <div className="min-w-0">
+                    <div className="font-semibold text-ink dark:text-white truncate">{w.topic}</div>
+                    <div className="text-xs text-stone-500 dark:text-stone-400">
+                      {w.total} sualdan {w.wrong}-i düzgün deyil
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => onSelectScreen('practice')}
+                    className="shrink-0 text-sm font-semibold text-brand-fg hover:underline"
+                  >
+                    Məşq et →
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Pozuntu jurnalı və plagiat */}
+        <PlagiarismReport
+          violations={data.violations.length}
+          answeredCount={ev.total - ev.blank}
+          total={ev.total}
+          usedSec={ev.usedSec}
+        />
+
+        {data.violations.length > 0 && (
+          <section className="bg-surface dark:bg-surface-dark rounded-[20px] border border-stone-200 dark:border-stone-800 shadow-calm p-6 sm:p-8 space-y-3">
+            <h2 className="text-lg font-bold text-ink dark:text-white">Pəncərədən çıxma jurnalı</h2>
+            <ul className="space-y-2 text-sm">
+              {data.violations.map((ts, i) => (
+                <li
+                  key={ts}
+                  className="flex items-center justify-between rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 px-4 py-2.5 text-amber-800 dark:text-amber-200"
+                >
+                  <span>
+                    Xəbərdarlıq {i + 1} / {MAX_VIOLATIONS}
+                  </span>
+                  <span className="font-mono">
+                    {formatClock(Math.max(0, Math.round((ts - data.startedAt) / 1000)))} dəqiqədə
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
     </div>
   );

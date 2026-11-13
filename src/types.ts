@@ -1,13 +1,36 @@
 export type ScreenType =
-  'landing' | 'subjects' | 'test' | 'result' | 'practice' | 'dashboard' | 'login' | 'register';
+  | 'landing'
+  | 'subjects'
+  | 'sections'
+  | 'topics'
+  | 'exam-info'
+  | 'test'
+  | 'result'
+  | 'practice'
+  | 'dashboard'
+  | 'login'
+  | 'register'
+  | 'verify-email'
+  | 'profile'
+  | 'ranking'
+  | 'packages'
+  | 'about'
+  | 'contact'
+  | 'privacy'
+  | 'terms';
 
-export type Grade = 9 | 10 | 11;
+export type PlanId = 'free' | 'premium' | 'school';
 
 export interface AuthUser {
   id: string;
   fullName: string;
   email: string;
-  grade: Grade;
+  /** ISO tarix: qeydiyyat vaxtı */
+  createdAt: string;
+  emailVerified: boolean;
+  /** Profil şəkli (data URL). Backend hazır olanda şəkil URL-i olacaq. */
+  avatarUrl?: string;
+  plan: PlanId;
 }
 
 export type SubjectId = 'math' | 'aze' | 'eng';
@@ -96,4 +119,57 @@ export interface ResultMistake {
     steps: string[];
     tip: string;
   };
+}
+
+export type OptionKey = 'A' | 'B' | 'C' | 'D';
+export type Difficulty = 'easy' | 'medium' | 'hard';
+export type DifficultyChoice = Difficulty | 'mixed';
+
+export interface Section {
+  id: string;
+  subjectId: SubjectId;
+  name: string;
+  description: string;
+}
+
+export interface CatalogTopic {
+  id: string;
+  subjectId: SubjectId;
+  sectionId: string;
+  name: string;
+  difficulty: Difficulty;
+  questionCount: number;
+  /** 0–100: istifadəçinin mövzu üzrə bilik səviyyəsi (mock) */
+  mastery: number;
+}
+
+export interface BankQuestion extends TestQuestion {
+  topicId: string;
+  difficulty: Difficulty;
+}
+
+export interface ExamSetup {
+  subjectId: SubjectId;
+  sectionId?: string;
+  topicIds: string[];
+  difficulty: DifficultyChoice;
+  questionCount: number;
+}
+
+export type ExamEndReason = 'manual' | 'time' | 'tab-switch';
+
+export interface ExamSession {
+  id: string;
+  setup: ExamSetup;
+  questionIds: number[];
+  startedAt: number;
+  durationSec: number;
+  answers: Record<number, OptionKey>;
+  flagged: number[];
+  /** Pəncərədən çıxma anları (ms timestamp) */
+  violations: number[];
+  status: 'running' | 'finished';
+  endReason?: ExamEndReason;
+  finishedAt?: number;
+  isDemo?: boolean;
 }

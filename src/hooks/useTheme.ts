@@ -11,10 +11,11 @@ function getInitialTheme(): Theme {
   } catch {
     /* ignore */
   }
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  // Defolt həmişə işıqlıdır; qaranlıq rejim yalnız istifadəçi özü seçəndə açılır
+  return 'light';
 }
 
-/** Light/Dark rejimi: seçim yadda saxlanır, ilk dəfə sistem rejiminə görə başlayır. */
+/** Light/Dark rejimi: seçim yadda saxlanır, ilk dəfə həmişə işıqlı başlayır. */
 export function useTheme() {
   const [theme, setThemeState] = useState<Theme>(getInitialTheme);
 

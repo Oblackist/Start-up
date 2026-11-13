@@ -1,50 +1,34 @@
 import React from 'react';
-import { AuthUser, ScreenType } from '../types';
-import { LogOut, Moon, Monitor, Smartphone, Sun } from 'lucide-react';
+import { Link } from 'react-router';
+import { LogOut, Moon, Sun } from 'lucide-react';
+import type { AuthUser, ScreenType } from '../types';
+import { SCREEN_PATHS } from '../routes';
+import { BrandLogo } from './BrandLogo';
+import { Avatar } from './Avatar';
 
 interface NavbarProps {
   currentScreen: ScreenType;
-  onSelectScreen: (screen: ScreenType) => void;
   isDark: boolean;
   onSetDark: (dark: boolean) => void;
   user: AuthUser | null;
   onLogout: () => void;
-  isMobileFrame: boolean;
-  onToggleMobileFrame: () => void;
 }
 
-const getInitials = (fullName: string) =>
-  fullName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('');
+const NAV_ITEMS: { screen: ScreenType; label: string; match: ScreenType[] }[] = [
+  { screen: 'landing', label: 'Ana səhifə', match: ['landing'] },
+  { screen: 'subjects', label: 'Fənnlər', match: ['subjects', 'sections', 'topics', 'exam-info'] },
+  { screen: 'ranking', label: 'Reytinq', match: ['ranking'] },
+  { screen: 'packages', label: 'Paketlər', match: ['packages'] },
+  { screen: 'dashboard', label: 'İnkişaf paneli', match: ['dashboard', 'result', 'practice'] },
+];
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentScreen,
-  onSelectScreen,
   isDark,
   onSetDark,
   user,
   onLogout,
-  isMobileFrame,
-  onToggleMobileFrame,
 }) => {
-  const scrollToSection = (id: string) => {
-    if (currentScreen !== 'landing') {
-      onSelectScreen('landing');
-      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 100);
-    } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const linkClass = (active: boolean) =>
-    `hover:text-brand-fg transition-colors whitespace-nowrap ${
-      active ? 'text-brand-fg font-semibold' : ''
-    }`;
-
   const themeButtonClass = (active: boolean) =>
     `flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
       active
@@ -56,13 +40,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-50 bg-surface/90 dark:bg-nav-dark/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 transition-colors">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
         {/* Brend */}
-        <button
-          onClick={() => onSelectScreen('landing')}
-          className="flex items-center gap-2.5 text-left group shrink-0"
-        >
-          <div className="w-10 h-10 rounded-[12px] bg-brand text-white flex items-center justify-center font-bold text-lg shadow-sm group-hover:bg-brand-700 transition-colors">
-            CA
-          </div>
+        <Link to={SCREEN_PATHS.landing} className="flex items-center gap-2.5 shrink-0 group">
+          <BrandLogo />
           <div className="hidden sm:block">
             <div className="flex items-center gap-1.5">
               <span className="text-lg font-bold tracking-tight text-ink dark:text-white leading-none">
@@ -76,31 +55,33 @@ export const Navbar: React.FC<NavbarProps> = ({
               Buraxılış imtahanları
             </span>
           </div>
-        </button>
+        </Link>
 
-        {/* Naviqasiya */}
-        <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-stone-600 dark:text-stone-300">
-          <button
-            onClick={() => onSelectScreen('subjects')}
-            className={linkClass(currentScreen === 'subjects')}
-          >
-            Fənnlər
-          </button>
-          <button onClick={() => scrollToSection('how-it-works')} className={linkClass(false)}>
-            Necə işləyir
-          </button>
-          <button onClick={() => scrollToSection('pricing')} className={linkClass(false)}>
-            Qiymətlər
-          </button>
-          <button
-            onClick={() => onSelectScreen('dashboard')}
-            className={linkClass(currentScreen === 'dashboard')}
-          >
-            İnkişaf paneli
-          </button>
-          <span className="hidden xl:flex text-xs text-stone-400 dark:text-stone-500 items-center gap-1.5 cursor-not-allowed select-none whitespace-nowrap">
+        {/* Naviqasiya: aktiv səhifə fərqləndirilir */}
+        <nav
+          aria-label="Əsas naviqasiya"
+          className="hidden lg:flex items-center gap-1 text-sm font-medium"
+        >
+          {NAV_ITEMS.map((item) => {
+            const active = item.match.includes(currentScreen);
+            return (
+              <Link
+                key={item.screen}
+                to={SCREEN_PATHS[item.screen]}
+                aria-current={active ? 'page' : undefined}
+                className={`relative px-3.5 py-2 rounded-[10px] whitespace-nowrap transition-colors ${
+                  active
+                    ? 'bg-brand-soft dark:bg-brand-950/50 text-brand-fg font-semibold after:absolute after:left-3.5 after:right-3.5 after:-bottom-[13px] after:h-0.5 after:rounded-full after:bg-brand-fg'
+                    : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-surface-dark hover:text-ink dark:hover:text-white'
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+          <span className="hidden 2xl:flex ml-2 text-xs text-stone-400 dark:text-stone-500 items-center gap-1.5 cursor-not-allowed select-none whitespace-nowrap">
             <span>Interview Arena</span>
-            <span className="text-[10px] bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500 px-1.5 py-0.5 rounded font-medium">
+            <span className="text-[10px] bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 rounded font-medium">
               Tezliklə
             </span>
           </span>
@@ -108,22 +89,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Hərəkətlər */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          {/* Mobil çərçivə simulyatoru: yalnız `npm run dev` zamanı görünür */}
-          {import.meta.env.DEV && (
-            <button
-              onClick={onToggleMobileFrame}
-              title={isMobileFrame ? 'Masaüstü rejiminə qayıt' : '390px mobil simulyasiyanı aç'}
-              aria-label="Mobil simulyasiya"
-              className={`hidden md:flex h-9 w-9 items-center justify-center rounded-xl border transition-colors ${
-                isMobileFrame
-                  ? 'bg-brand text-white border-brand'
-                  : 'bg-surface dark:bg-surface-dark text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-800 hover:text-brand-fg'
-              }`}
-            >
-              {isMobileFrame ? <Monitor className="w-4 h-4" /> : <Smartphone className="w-4 h-4" />}
-            </button>
-          )}
-
           {/* İşıqlı / Qaranlıq rejim: günəş = light, ay = dark */}
           <div
             role="group"
@@ -154,18 +119,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {user ? (
             <>
-              <button
-                onClick={() => onSelectScreen('dashboard')}
-                title={user.fullName}
-                className="flex items-center gap-2.5 rounded-[12px] pl-1 pr-1 sm:pr-3 py-1 hover:bg-stone-100 dark:hover:bg-surface-dark transition-colors"
+              <Link
+                to={SCREEN_PATHS.profile}
+                title="Profil"
+                aria-current={currentScreen === 'profile' ? 'page' : undefined}
+                className={`flex items-center gap-2.5 rounded-[12px] pl-1 pr-1 sm:pr-3 py-1 transition-colors ${
+                  currentScreen === 'profile'
+                    ? 'bg-brand-soft dark:bg-brand-950/50'
+                    : 'hover:bg-stone-100 dark:hover:bg-surface-dark'
+                }`}
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-brand-soft dark:bg-brand-950/60 border border-brand-200 dark:border-brand-900/60 text-sm font-bold text-brand-fg">
-                  {getInitials(user.fullName)}
-                </span>
+                <Avatar name={user.fullName} src={user.avatarUrl} size={36} />
                 <span className="hidden sm:block text-sm font-semibold text-ink dark:text-white max-w-[140px] truncate">
                   {user.fullName}
                 </span>
-              </button>
+              </Link>
               <button
                 onClick={onLogout}
                 aria-label="Çıxış"
@@ -178,23 +146,23 @@ export const Navbar: React.FC<NavbarProps> = ({
             </>
           ) : (
             <>
-              <button
-                onClick={() => onSelectScreen('login')}
-                className={`h-10 px-3 sm:px-4 rounded-[12px] text-sm font-semibold transition-colors whitespace-nowrap ${
+              <Link
+                to={SCREEN_PATHS.login}
+                className={`h-10 px-3 sm:px-4 rounded-[12px] text-sm font-semibold transition-colors whitespace-nowrap flex items-center ${
                   currentScreen === 'login'
                     ? 'text-brand-fg'
                     : 'text-stone-700 dark:text-stone-200 hover:text-brand-fg'
                 }`}
               >
                 Daxil ol
-              </button>
-              <button
-                onClick={() => onSelectScreen('register')}
+              </Link>
+              <Link
+                to={SCREEN_PATHS.register}
                 className="h-10 px-3.5 sm:px-5 rounded-[12px] bg-brand hover:bg-brand-700 dark:bg-brand-400 dark:hover:bg-brand-300 dark:text-ink active:scale-[0.98] text-white text-sm font-semibold transition-all duration-150 shadow-sm flex items-center justify-center whitespace-nowrap"
               >
                 <span className="hidden sm:inline">Qeydiyyatdan keç</span>
                 <span className="sm:hidden">Qeydiyyat</span>
-              </button>
+              </Link>
             </>
           )}
         </div>

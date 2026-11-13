@@ -18,21 +18,38 @@ Node.js 20+ tövsiyə olunur.
 
 ```
 src/
-  App.tsx                 # ekran naviqasiyası (useState), tema, istifadəçi sessiyası
-  types.ts                # bütün data modelləri (backend DTO-ları üçün əsas)
-  data/examData.ts        # MOCK data — backend ilə əvəz olunmalıdır
-  services/authService.ts # MOCK auth (qeydiyyat/giriş/çıxış) — backend ilə əvəz olunmalıdır
-  hooks/useTheme.ts       # light/dark rejimi (seçim yadda saxlanır)
-  components/             # Navbar, MobileTabBar, ProgressRing
-  screens/
-    LandingScreen.tsx     # ana səhifə
-    SubjectsScreen.tsx    # fənlər və mövzular
-    TestScreen.tsx        # test (sual + variantlar)
-    ResultScreen.tsx      # nəticə və izahlar
-    PracticeScreen.tsx    # zəif mövzular üzrə fərdi məşq
-    DashboardScreen.tsx   # inkişaf paneli
-    AuthScreen.tsx        # giriş və qeydiyyat (login / register)
+  App.tsx                  # marşrutlar (react-router), ümumi çərçivə (Navbar, Geri, Footer), sessiya
+  routes.ts                # ekran adı ↔ URL xəritəsi
+  types.ts                 # bütün data modelləri (backend DTO-ları üçün əsas)
+  context/ExamContext.tsx  # imtahan seçimləri və gedişi (sessionStorage-də saxlanır)
+  hooks/useTheme.ts        # light/dark rejimi
+  services/authService.ts  # MOCK auth (qeydiyyat, giriş, e-poçt kodu, profil, şifrə)
+  utils/exam.ts            # müddət (sual sayı × 1,5), sual seçimi, nəticənin hesablanması
+  data/
+    catalog.ts             # bölmələr, mövzular, çətinlik səviyyələri (MOCK)
+    questionBank.ts        # 30 suallıq nümunə bank (MOCK)
+    community.ts           # reytinq, rəylər, paketlər (MOCK)
+    examData.ts            # fənlər və ilkin sual datası (MOCK)
+  components/              # Navbar, Footer, BackBar, Modal, Accordion, StarRating, FiveStepCycle, ...
+  screens/                 # hər səhifə üçün bir fayl
+  assets/                  # logo.png buraya qoyulur
 ```
+
+## Səhifələr (URL-lər)
+
+| URL | Səhifə |
+| --- | --- |
+| `/` | Ana səhifə (dairəvi 5 addımlıq animasiya daxil) |
+| `/subjects` → `/sections` → `/topics` | Fənn → bölmə → mövzu və çətinlik seçimi |
+| `/exam-info` → `/exam` → `/result` | İmtahan məlumat səhifəsi → imtahan (taymer, 30 sual) → nəticə və plagiat hesabatı |
+| `/dashboard`, `/practice` | İnkişaf paneli, fərdi məşq |
+| `/login`, `/register`, `/verify-email` | Giriş, qeydiyyat, e-poçt təsdiq kodu |
+| `/profile` | Profil məlumatları, şəkil yükləmə, şifrə dəyişmə |
+| `/ranking` | Ümumi reytinq və imtahan üzrə reytinq (ulduz və şərh) |
+| `/packages` | Free, Premium və məktəb/kurs paketləri |
+| `/about`, `/contact`, `/privacy`, `/terms` | Haqqımızda, əlaqə, məxfilik, şərtlər |
+
+Hostinqdə (Vercel, Netlify) bütün yolların `index.html`-ə yönləndirilməsi lazımdır. `vercel.json` və `public/_redirects` bunun üçün hazırdır.
 
 ## Kod qaydaları
 
@@ -42,12 +59,12 @@ src/
 
 ## Backend komandası üçün qeydlər
 
-- **Backend çağırışı yoxdur.** Bütün data `src/data/examData.ts`-dən gəlir (`SUBJECTS_DATA`, `TOPICS_DATA`, test sualları, zəif mövzular, səhvlər, məşq kartları).
-  Tiplər `src/types.ts`-dədir: `SubjectInfo`, `TopicItem`, `TestQuestion`, `WeakTopic`, `SavedMistake`, `PracticeCard`. API cavabları bu formada olarsa, UI dəyişməz qalır.
-- **Routing yoxdur.** Ekranlar `App.tsx`-də `currentScreen` state-i ilə dəyişir. URL-lər üçün `react-router` əlavə etmək məsləhətdir.
-- **Auth UI hazırdır, backend yoxdur.** Giriş və qeydiyyat formaları (validasiya ilə) işləyir, amma `src/services/authService.ts` MOCK-dur: istifadəçilər yalnız brauzerin `localStorage`-ində saxlanır, şifrə **saxlanmır və yoxlanmır**. Backend hazır olanda yalnız həmin faylı API çağırışları (`POST /auth/register`, `/auth/login`, `/auth/logout`) ilə əvəz etmək kifayətdir. Dashboard-dakı profil məlumatı (ad, sinif) qeydiyyatdan götürülür, qalan göstəricilər mock-dur.
-- **Dark/Light rejim** `useTheme` hook-u ilə idarə olunur (`<html class="dark">`). Seçim `localStorage`-də (`ca-theme`) saxlanır, ilk dəfə sistem rejiminə görə başlayır.
-- `TestScreen` demo vəziyyətlə başlayır (5-ci sual açıqdır, əvvəlki cavablar əvvəlcədən seçilib). Real istifadədə `currentQuestionIndex` və `userAnswers` başlanğıc dəyərləri sıfırlanmalıdır.
-- Seçilmiş fən (`App.tsx`-də `setActiveSubject`) hələ `TestScreen`-ə ötürülmür, test sualları statikdir.
-- Test cavabları, nəticələr və irəliləyiş hazırda yadda saxlanmır (yalnız UI state).
-- Navbar-dakı mobil simulyasiya düyməsi (390px çərçivə) yalnız `npm run dev` zamanı görünür, production build-də avtomatik gizlənir.
+- **Backend çağırışı yoxdur.** Bütün data `src/data/` qovluğundadır və `src/services/authService.ts` MOCK-dur. API cavabları `src/types.ts`-dəki formada olarsa, UI dəyişməz qalır.
+- **Auth:** qeydiyyat → e-poçt təsdiq kodu (6 rəqəm) → panel. Mock kod `123456`-dır və yalnız `npm run dev`-də ekranda göstərilir. Şifrə saxlanmır və yoxlanmır. Gözlənilən endpoint-lər `authService.ts`-in başında yazılıb.
+- **İmtahan müddəti** = sual sayı × 1,5 dəqiqə (30 sual → 45 dəq). Hesablama `src/utils/exam.ts`-dədir, server tərəfdə də eyni qayda tətbiq olunmalıdır.
+- **Tab dəyişmə:** imtahan pəncərəsindən 3 dəfə çıxılsa, imtahan dayandırılır (`MAX_VIOLATIONS`). Real yoxlamanı server də aparmalıdır.
+- **Plagiat hesabatı:** `PlagiarismReport` göstəriciləri hazırda mock hesablanır, serverdən gələn real nəticə ilə əvəz olunmalıdır.
+- **Sual bankı** yalnız Riyaziyyat üçündür (30 sual). Digər fənlər nümunə rejimində eyni suallarla işləyir, imtahan məlumat səhifəsində bu qeyd olunur.
+- **Profil şəkli** hazırda data URL kimi `localStorage`-də saxlanır. Backend hazır olanda faylın serverə yüklənməsi lazımdır.
+- **Reytinq və rəylər** mock-dur (rəylər brauzerdə saxlanır).
+- **Əlaqə məlumatları** (`info@careerarena.az`, telefon, ünvan) və **hüquqi mətnlər** (məxfilik, şərtlər) nümunədir. Yayımlamazdan əvvəl real məlumatla əvəz edin və hüquqşünas yoxlasın.

@@ -1,153 +1,219 @@
-import { useState, useEffect } from 'react';
-import { AuthUser, ScreenType, SubjectId } from './types';
-import { Navbar } from './components/Navbar';
-import { MobileTabBar } from './components/MobileTabBar';
-import { LandingScreen } from './screens/LandingScreen';
-import { SubjectsScreen } from './screens/SubjectsScreen';
-import { TestScreen } from './screens/TestScreen';
-import { ResultScreen } from './screens/ResultScreen';
-import { PracticeScreen } from './screens/PracticeScreen';
-import { DashboardScreen } from './screens/DashboardScreen';
-import { AuthScreen } from './screens/AuthScreen';
+import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
+import { MailWarning } from 'lucide-react';
+import type { AuthUser, ScreenType } from './types';
+import { SCREEN_PATHS, SCREEN_TITLES, pathToScreen } from './routes';
 import { useTheme } from './hooks/useTheme';
 import { getSession, logout } from './services/authService';
-import { Smartphone, Monitor } from 'lucide-react';
+import { useExam } from './context/ExamContext';
+import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
+import { BackBar } from './components/BackBar';
+import { MobileTabBar } from './components/MobileTabBar';
+import { LandingScreen } from './screens/LandingScreen';
+
+const SubjectsScreen = lazy(() =>
+  import('./screens/SubjectsScreen').then((m) => ({ default: m.SubjectsScreen })),
+);
+const SectionsScreen = lazy(() =>
+  import('./screens/SectionsScreen').then((m) => ({ default: m.SectionsScreen })),
+);
+const TopicsScreen = lazy(() =>
+  import('./screens/TopicsScreen').then((m) => ({ default: m.TopicsScreen })),
+);
+const ExamInfoScreen = lazy(() =>
+  import('./screens/ExamInfoScreen').then((m) => ({ default: m.ExamInfoScreen })),
+);
+const ExamScreen = lazy(() =>
+  import('./screens/ExamScreen').then((m) => ({ default: m.ExamScreen })),
+);
+const ResultScreen = lazy(() =>
+  import('./screens/ResultScreen').then((m) => ({ default: m.ResultScreen })),
+);
+const PracticeScreen = lazy(() =>
+  import('./screens/PracticeScreen').then((m) => ({ default: m.PracticeScreen })),
+);
+const DashboardScreen = lazy(() =>
+  import('./screens/DashboardScreen').then((m) => ({ default: m.DashboardScreen })),
+);
+const AuthScreen = lazy(() =>
+  import('./screens/AuthScreen').then((m) => ({ default: m.AuthScreen })),
+);
+const VerifyEmailScreen = lazy(() =>
+  import('./screens/VerifyEmailScreen').then((m) => ({ default: m.VerifyEmailScreen })),
+);
+const ProfileScreen = lazy(() =>
+  import('./screens/ProfileScreen').then((m) => ({ default: m.ProfileScreen })),
+);
+const RankingScreen = lazy(() =>
+  import('./screens/RankingScreen').then((m) => ({ default: m.RankingScreen })),
+);
+const PackagesScreen = lazy(() =>
+  import('./screens/PackagesScreen').then((m) => ({ default: m.PackagesScreen })),
+);
+const InfoScreen = lazy(() =>
+  import('./screens/InfoScreen').then((m) => ({ default: m.InfoScreen })),
+);
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<ScreenType>('landing');
+  const navigate = useNavigate();
+  const location = useLocation();
   const { isDark, setTheme } = useTheme();
+  const { startExam } = useExam();
   const [user, setUser] = useState<AuthUser | null>(getSession);
-  const [isMobileFrame, setIsMobileFrame] = useState<boolean>(false);
-  // TODO: seçilmiş fənni TestScreen-ə ötürmək (hazırda test sualları statikdir)
-  const [, setActiveSubject] = useState<SubjectId>('math');
 
-  // Ekran dəyişəndə səhifənin yuxarısına qayıt
+  const screen: ScreenType = pathToScreen(location.pathname) ?? 'landing';
+  const isExam = screen === 'test';
+
+  /** Ekranlar arası keçid. "test" həmişə əvvəlcə imtahan məlumat səhifəsinə aparır. */
+  const go = useCallback(
+    (target: ScreenType) => navigate(SCREEN_PATHS[target === 'test' ? 'exam-info' : target]),
+    [navigate],
+  );
+
+  // Səhifənin yuxarısına qayıt və başlığı yenilə
   useEffect(() => {
     window.scrollTo({ top: 0 });
-  }, [currentScreen]);
+    document.title = `${SCREEN_TITLES[screen]} · Career Arena`;
+  }, [screen]);
 
-  const handleAuthSuccess = (authUser: AuthUser) => {
+  const handleAuthSuccess = (authUser: AuthUser, isNewAccount: boolean) => {
     setUser(authUser);
-    setCurrentScreen('dashboard');
+    go(isNewAccount ? 'verify-email' : 'dashboard');
   };
 
   const handleLogout = () => {
     logout();
     setUser(null);
-    setCurrentScreen('landing');
+    go('landing');
   };
 
-  const handleToggleMobileFrame = () => {
-    setIsMobileFrame((prev) => !prev);
+  const handleStartExam = () => {
+    startExam();
+    navigate(SCREEN_PATHS.test);
   };
 
-  const handleStartSubjectTest = (subjectId: SubjectId) => {
-    setActiveSubject(subjectId);
-    setCurrentScreen('test');
-  };
-
-  // Render the active screen content
-  const renderScreen = () => {
-    switch (currentScreen) {
-      case 'landing':
-        return <LandingScreen onSelectScreen={setCurrentScreen} />;
-      case 'subjects':
-        return (
-          <SubjectsScreen
-            onSelectScreen={setCurrentScreen}
-            onStartSubjectTest={handleStartSubjectTest}
-          />
-        );
-      case 'test':
-        return <TestScreen onSelectScreen={setCurrentScreen} />;
-      case 'result':
-        return <ResultScreen onSelectScreen={setCurrentScreen} />;
-      case 'practice':
-        return <PracticeScreen onSelectScreen={setCurrentScreen} />;
-      case 'dashboard':
-        return <DashboardScreen onSelectScreen={setCurrentScreen} user={user} />;
-      case 'login':
-      case 'register':
-        return (
-          <AuthScreen
-            key={currentScreen}
-            mode={currentScreen}
-            onSelectScreen={setCurrentScreen}
-            onAuthSuccess={handleAuthSuccess}
-          />
-        );
-      default:
-        return <LandingScreen onSelectScreen={setCurrentScreen} />;
-    }
-  };
+  const showVerifyBanner = !!user && !user.emailVerified && screen !== 'verify-email' && !isExam;
 
   return (
-    <div className="min-h-screen bg-canvas dark:bg-canvas-dark text-ink dark:text-paper flex flex-col transition-colors selection:bg-brand-100 dark:selection:bg-brand-900">
-      {/* Top Navigation Bar */}
-      <Navbar
-        currentScreen={currentScreen}
-        onSelectScreen={setCurrentScreen}
-        isDark={isDark}
-        onSetDark={(dark) => setTheme(dark ? 'dark' : 'light')}
-        user={user}
-        onLogout={handleLogout}
-        isMobileFrame={isMobileFrame}
-        onToggleMobileFrame={handleToggleMobileFrame}
-      />
+    <div className="min-h-screen flex flex-col bg-canvas dark:bg-canvas-dark text-ink dark:text-paper transition-colors">
+      {!isExam && (
+        <Navbar
+          currentScreen={screen}
+          isDark={isDark}
+          onSetDark={(dark) => setTheme(dark ? 'dark' : 'light')}
+          user={user}
+          onLogout={handleLogout}
+        />
+      )}
 
-      {/* Main View Area: either 1440px Desktop or 390px Mobile Frame Simulator */}
-      {isMobileFrame ? (
-        <div className="flex-1 py-8 px-4 flex flex-col items-center justify-start bg-stone-200/70 dark:bg-black">
-          {/* Mobile frame header controls */}
-          <div className="mb-4 flex items-center gap-3 text-xs font-semibold text-stone-600 dark:text-stone-400">
-            <span className="flex items-center gap-1.5 bg-surface dark:bg-surface-dark px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-800 shadow-xs">
-              <Smartphone className="w-3.5 h-3.5 text-brand-fg" />
-              <span>Mobil Simulyasiya: 390px × 844px (iPhone 14/15)</span>
+      {showVerifyBanner && (
+        <div
+          role="status"
+          className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-200 text-sm"
+        >
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-3">
+            <span className="flex items-center gap-2">
+              <MailWarning className="w-4 h-4 shrink-0" /> E-poçtun hələ təsdiqlənməyib.
             </span>
             <button
-              onClick={() => setIsMobileFrame(false)}
-              className="text-brand-fg dark:text-brand-400 hover:underline flex items-center gap-1"
+              onClick={() => go('verify-email')}
+              className="font-semibold underline underline-offset-2 shrink-0"
             >
-              <Monitor className="w-3.5 h-3.5" />
-              <span>1440px rejimə keç</span>
+              İndi təsdiqlə
             </button>
-          </div>
-
-          {/* 390px Mobile Viewport Container */}
-          <div className="w-[390px] h-[844px] bg-canvas dark:bg-canvas-dark rounded-[44px] border-[10px] border-stone-800 dark:border-stone-700 shadow-2xl overflow-hidden relative flex flex-col">
-            {/* Dynamic Island / Speaker notch simulation */}
-            <div className="h-7 w-full bg-stone-800 dark:bg-stone-700 flex items-center justify-center shrink-0">
-              <div className="w-24 h-4 bg-black rounded-full" />
-            </div>
-
-            {/* Scrollable screen content */}
-            <div className="flex-1 overflow-y-auto pb-16">{renderScreen()}</div>
-
-            {/* Mobile Bottom Tab Bar with 48px touch targets */}
-            <div className="absolute bottom-0 left-0 right-0">
-              <MobileTabBar
-                currentScreen={currentScreen}
-                onSelectScreen={setCurrentScreen}
-                isLoggedIn={!!user}
-              />
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* Standard 1440px Desktop Baseline */
-        <div className="flex-1 flex flex-col pb-16 md:pb-0">
-          {renderScreen()}
-
-          {/* For real mobile viewports, show bottom tab bar on small screens (< 768px) */}
-          <div className="block md:hidden">
-            <MobileTabBar
-              currentScreen={currentScreen}
-              onSelectScreen={setCurrentScreen}
-              isLoggedIn={!!user}
-            />
           </div>
         </div>
       )}
+
+      {!isExam && screen !== 'landing' && <BackBar screen={screen} />}
+
+      <main className={`flex-1 flex flex-col ${isExam ? '' : 'pb-16 md:pb-0'}`}>
+        <Suspense fallback={<div className="flex-1" aria-busy="true" />}>
+          <Routes>
+            <Route path={SCREEN_PATHS.landing} element={<LandingScreen onSelectScreen={go} />} />
+            <Route path={SCREEN_PATHS.subjects} element={<SubjectsScreen onSelectScreen={go} />} />
+            <Route path={SCREEN_PATHS.sections} element={<SectionsScreen onSelectScreen={go} />} />
+            <Route path={SCREEN_PATHS.topics} element={<TopicsScreen onSelectScreen={go} />} />
+            <Route
+              path={SCREEN_PATHS['exam-info']}
+              element={
+                <ExamInfoScreen
+                  onSelectScreen={(s) => navigate(SCREEN_PATHS[s])}
+                  onStartExam={handleStartExam}
+                />
+              }
+            />
+            <Route
+              path={SCREEN_PATHS.test}
+              element={
+                <ExamScreen onSelectScreen={(s) => navigate(SCREEN_PATHS[s], { replace: true })} />
+              }
+            />
+            <Route path={SCREEN_PATHS.result} element={<ResultScreen onSelectScreen={go} />} />
+            <Route path={SCREEN_PATHS.practice} element={<PracticeScreen onSelectScreen={go} />} />
+            <Route
+              path={SCREEN_PATHS.dashboard}
+              element={<DashboardScreen onSelectScreen={go} user={user} />}
+            />
+            <Route
+              path={SCREEN_PATHS.login}
+              element={
+                <AuthScreen
+                  key="login"
+                  mode="login"
+                  onSelectScreen={go}
+                  onAuthSuccess={handleAuthSuccess}
+                />
+              }
+            />
+            <Route
+              path={SCREEN_PATHS.register}
+              element={
+                <AuthScreen
+                  key="register"
+                  mode="register"
+                  onSelectScreen={go}
+                  onAuthSuccess={handleAuthSuccess}
+                />
+              }
+            />
+            <Route
+              path={SCREEN_PATHS['verify-email']}
+              element={<VerifyEmailScreen user={user} onVerified={setUser} onSelectScreen={go} />}
+            />
+            <Route
+              path={SCREEN_PATHS.profile}
+              element={<ProfileScreen user={user} onUserChange={setUser} onSelectScreen={go} />}
+            />
+            <Route
+              path={SCREEN_PATHS.ranking}
+              element={<RankingScreen user={user} onSelectScreen={go} />}
+            />
+            <Route path={SCREEN_PATHS.packages} element={<PackagesScreen onSelectScreen={go} />} />
+            <Route
+              path={SCREEN_PATHS.about}
+              element={<InfoScreen page="about" onSelectScreen={go} />}
+            />
+            <Route
+              path={SCREEN_PATHS.contact}
+              element={<InfoScreen page="contact" onSelectScreen={go} />}
+            />
+            <Route
+              path={SCREEN_PATHS.privacy}
+              element={<InfoScreen page="privacy" onSelectScreen={go} />}
+            />
+            <Route
+              path={SCREEN_PATHS.terms}
+              element={<InfoScreen page="terms" onSelectScreen={go} />}
+            />
+            <Route path="*" element={<Navigate to={SCREEN_PATHS.landing} replace />} />
+          </Routes>
+        </Suspense>
+      </main>
+
+      {!isExam && <Footer />}
+      {!isExam && <MobileTabBar currentScreen={screen} isLoggedIn={!!user} />}
     </div>
   );
 }

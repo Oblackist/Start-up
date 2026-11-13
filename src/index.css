@@ -4,112 +4,112 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Dizayn tokenləri — palitra: "Meşə yaşılı" (forest green + qızılı vurğu + isti krem fon).
- * Rəngi dəyişmək üçün yalnız bu faylda düzəliş etmək kifayətdir.
+ * Dizayn tokenləri — palitra: "Zümrüd + qızılı" (təmiz ağ/soyuq boz fon, zümrüd yaşılı əsas rəng,
+ * logodakı qızılı yalnız vurğu üçün). Rəngi dəyişmək üçün yalnız bu faylda düzəliş etmək kifayətdir.
  */
 @theme {
   --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Əsas rəng: meşə yaşılı (düymələr, linklər, aktiv vəziyyət) */
-  --color-brand: #2f5d50;
-  --color-brand-soft: #e7efe9;
-  --color-brand-50: #f0f6f3;
-  --color-brand-100: #ddebe3;
-  --color-brand-200: #bbd6c7;
-  --color-brand-300: #92baa4;
-  --color-brand-400: #6a9c84;
-  --color-brand-500: #4a7f68;
-  --color-brand-600: #2f5d50;
-  --color-brand-700: #264b41;
-  --color-brand-800: #1e3b34;
-  --color-brand-900: #172e28;
-  --color-brand-950: #0e1d19;
+  /* Əsas rəng: zümrüd yaşılı (düymələr, linklər, aktiv vəziyyət) */
+  --color-brand: #0f7b5f;
+  --color-brand-soft: #e8f6f1;
+  --color-brand-50: #ecf8f4;
+  --color-brand-100: #d3f0e6;
+  --color-brand-200: #a8e0cf;
+  --color-brand-300: #73c9b0;
+  --color-brand-400: #3fae91;
+  --color-brand-500: #1d9577;
+  --color-brand-600: #0f7b5f;
+  --color-brand-700: #0c6450;
+  --color-brand-800: #0d4f41;
+  --color-brand-900: #0d4036;
+  --color-brand-950: #05251f;
 
-  /* Uğur / "mənimsənilib" vəziyyəti: sakit yaşıl */
-  --color-accent: #52744a;
-  --color-sage-50: #f1f6ee;
-  --color-sage-100: #e0ebd9;
-  --color-sage-200: #c3d8b8;
-  --color-sage-300: #a0bf92;
-  --color-sage-400: #82a873;
-  --color-sage-500: #678f58;
-  --color-sage-600: #52744a;
-  --color-sage-700: #425c3c;
-  --color-sage-800: #354a32;
-  --color-sage-900: #2a3a28;
-  --color-sage-950: #172114;
+  /* Uğur / "mənimsənilib" vəziyyəti: təmiz yaşıl */
+  --color-accent: #2b774f;
+  --color-sage-50: #f0f9f3;
+  --color-sage-100: #dcf1e4;
+  --color-sage-200: #b9e2c9;
+  --color-sage-300: #8ccaa6;
+  --color-sage-400: #5bae80;
+  --color-sage-500: #3a9264;
+  --color-sage-600: #2b774f;
+  --color-sage-700: #255f41;
+  --color-sage-800: #214c37;
+  --color-sage-900: #1c3f2f;
+  --color-sage-950: #0d231a;
 
-  /* Premium / əsas CTA: qızılı */
-  --color-gold: #cfaa5b;
-  --color-gold-light: #e0c17e;
-  --color-gold-deep: #a88437;
+  /* Premium / əsas CTA: logodakı qızılı */
+  --color-gold: #e0a93b;
+  --color-gold-light: #f0c565;
+  --color-gold-deep: #b8841f;
 
-  /* "Diqqət tələb edir" vəziyyəti: tutqun qızılı-ocher (Tailwind amber əvəzinə) */
-  --color-amber-50: #fbf5e6;
-  --color-amber-100: #f5e8c7;
-  --color-amber-200: #ebd39a;
-  --color-amber-300: #ddb96a;
-  --color-amber-400: #cfa24a;
-  --color-amber-500: #b8892f;
-  --color-amber-600: #9a7024;
-  --color-amber-700: #7a581e;
-  --color-amber-800: #5e441b;
-  --color-amber-900: #46341a;
-  --color-amber-950: #2a1f0e;
+  /* "Diqqət tələb edir" vəziyyəti: kəhrəba */
+  --color-amber-50: #fff8e6;
+  --color-amber-100: #feefc3;
+  --color-amber-200: #fcdf8c;
+  --color-amber-300: #f8c94d;
+  --color-amber-400: #f2b320;
+  --color-amber-500: #d9990f;
+  --color-amber-600: #b97a09;
+  --color-amber-700: #925b0c;
+  --color-amber-800: #784811;
+  --color-amber-900: #653c13;
+  --color-amber-950: #3a1f06;
 
-  /* "Zəif" vəziyyəti: kərpic-qırmızı (Tailwind red əvəzinə) */
-  --color-red-50: #fbf0ed;
-  --color-red-100: #f6ddd6;
-  --color-red-200: #edbfb3;
-  --color-red-300: #e09c8b;
-  --color-red-400: #d17a67;
-  --color-red-500: #c05f4b;
-  --color-red-600: #a94a38;
-  --color-red-700: #8a3b2d;
-  --color-red-800: #6d2f25;
-  --color-red-900: #55261f;
-  --color-red-950: #31140f;
+  /* "Zəif" vəziyyəti: təmiz qırmızı */
+  --color-red-50: #fef2f2;
+  --color-red-100: #fee2e2;
+  --color-red-200: #fecaca;
+  --color-red-300: #fca5a5;
+  --color-red-400: #f87171;
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+  --color-red-700: #b91c1c;
+  --color-red-800: #991b1b;
+  --color-red-900: #7f1d1d;
+  --color-red-950: #450a0a;
 
-  /* Neytral rənglər: isti boz (Tailwind stone əvəzinə, kremə uyğun) */
-  --color-stone-50: #faf7f1;
-  --color-stone-100: #f3eee3;
-  --color-stone-200: #e7e0d0;
-  --color-stone-300: #d5ccb8;
-  --color-stone-400: #a59d8b;
-  --color-stone-500: #6d6757;
-  --color-stone-600: #565142;
-  --color-stone-700: #403c31;
-  --color-stone-800: #2b2923;
-  --color-stone-900: #1d1c18;
-  --color-stone-950: #11100d;
+  /* Neytral rənglər: soyuq slate boz (krem əvəzinə) */
+  --color-stone-50: #f8fafc;
+  --color-stone-100: #f1f5f9;
+  --color-stone-200: #e2e8f0;
+  --color-stone-300: #cbd5e1;
+  --color-stone-400: #94a3b8;
+  --color-stone-500: #64748b;
+  --color-stone-600: #475569;
+  --color-stone-700: #334155;
+  --color-stone-800: #1e293b;
+  --color-stone-900: #0f172a;
+  --color-stone-950: #020617;
 
   /* Mətn və səthlər (light) */
-  --color-ink: #1b2a23;
-  --color-ink-deep: #111c17;
-  --color-canvas: #f5f0e5;
-  --color-surface: #fffdf8;
+  --color-ink: #0f1d2a;
+  --color-ink-deep: #0a1520;
+  --color-canvas: #f5f7fa;
+  --color-surface: #ffffff;
 
   /* Mətn və səthlər (dark) */
-  --color-paper: #ede7d8;
-  --color-canvas-dark: #0c0d0b;
-  --color-nav-dark: #11130f;
-  --color-inset-dark: #131511;
-  --color-surface-dark: #1a1d18;
-  --color-surface-dark-alt: #21251f;
-  --color-raised-dark: #2b3029;
+  --color-paper: #e6ebf1;
+  --color-canvas-dark: #0b1219;
+  --color-nav-dark: #0f1821;
+  --color-inset-dark: #0d151d;
+  --color-surface-dark: #131e29;
+  --color-surface-dark-alt: #1a2733;
+  --color-raised-dark: #243342;
 }
 
 /* Rejimə görə dəyişən rənglər (light → dark) */
 :root {
-  --brand-fg: #2f5d50;
-  --ring: #2f5d50;
-  --ring-track: #e7e0d0;
+  --brand-fg: #0f7b5f;
+  --ring: #0f7b5f;
+  --ring-track: #e2e8f0;
 }
 
 .dark {
-  --brand-fg: #8fb8a2;
-  --ring: #86c2ac;
-  --ring-track: #2b3029;
+  --brand-fg: #6fd3b6;
+  --ring: #4fc3a1;
+  --ring-track: #243342;
   color-scheme: dark;
 }
 
@@ -135,15 +135,33 @@
     background-color: var(--color-canvas-dark);
     color: var(--color-paper);
   }
+
+  /* Tailwind 4 düymələrdə əl işarəsini göstərmir: bütün kliklənə bilən elementlərə əlavə edirik */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  a[href],
+  select,
+  summary,
+  label[for],
+  input[type='checkbox'],
+  input[type='radio'],
+  input[type='file'] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
 }
 
 /* Yumşaq kölgələr */
 .shadow-calm {
-  box-shadow: 0 8px 24px rgba(44, 36, 18, 0.08);
+  box-shadow: 0 8px 24px rgba(15, 29, 42, 0.06);
 }
 
 .shadow-calm-lg {
-  box-shadow: 0 16px 36px rgba(44, 36, 18, 0.12);
+  box-shadow: 0 16px 36px rgba(15, 29, 42, 0.10);
 }
 
 .dark .shadow-calm {
@@ -156,9 +174,9 @@
 
 /* Qızılı düymə (Premium / əsas CTA) */
 .btn-gold {
-  background-image: linear-gradient(180deg, #dfc27f 0%, #c49d4b 100%);
+  background-image: linear-gradient(180deg, #f2c764 0%, #e0a93b 100%);
   color: var(--color-ink);
-  box-shadow: 0 6px 16px rgba(168, 132, 55, 0.28);
+  box-shadow: 0 6px 16px rgba(184, 132, 31, 0.28);
   transition:
     filter 150ms,
     transform 150ms;
@@ -177,9 +195,9 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d5ccb8;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: #403c31;
+  background: #334155;
 }

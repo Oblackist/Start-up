@@ -6,11 +6,13 @@
     <script>
       try {
         var t = localStorage.getItem('ca-theme');
-        if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        if (t === 'dark') {
           document.documentElement.classList.add('dark');
         }
       } catch (e) {}
     </script>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="theme-color" content="#f5f7fa" />
     <title>Career Arena · Exam Arena | Buraxılış İmtahanlarına Hazırlıq</title>
     <meta name="description" content="9–11-ci sinif şagirdləri üçün buraxılış imtahanlarına hazırlıq platforması: qiymətləndirmə, mövzu üzrə analiz, fərdi məşq və inkişaf paneli." />
     <meta property="og:title" content="Career Arena · Exam Arena | Buraxılış İmtahanlarına Hazırlıq" />

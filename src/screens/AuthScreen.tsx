@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { AlertCircle, Check, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { AuthUser, Grade, ScreenType } from '../types';
+import { AlertCircle, Check, Loader2 } from 'lucide-react';
+import { AuthUser, ScreenType } from '../types';
+import { Field, PasswordInput, inputClass } from '../components/FormFields';
 import { AuthError, login, register } from '../services/authService';
+import { BrandLogo } from '../components/BrandLogo';
 
 interface AuthScreenProps {
   mode: 'login' | 'register';
   onSelectScreen: (screen: ScreenType) => void;
-  onAuthSuccess: (user: AuthUser) => void;
+  onAuthSuccess: (user: AuthUser, isNewAccount: boolean) => void;
 }
 
-const GRADES: Grade[] = [9, 10, 11];
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const BENEFITS = [
@@ -18,77 +19,6 @@ const BENEFITS = [
   'Zəif mövzulara fərdi gündəlik məşq planı',
 ];
 
-const inputClass = (hasError: boolean) =>
-  `h-12 w-full rounded-[12px] border bg-surface dark:bg-inset-dark px-4 text-sm text-ink dark:text-paper placeholder:text-stone-400 transition-colors focus:outline-none focus:ring-2 ${
-    hasError
-      ? 'border-red-500 focus:ring-red-500/30'
-      : 'border-stone-200 dark:border-stone-800 focus:border-brand-fg focus:ring-brand-fg/30'
-  }`;
-
-interface FieldProps {
-  id: string;
-  label: string;
-  error?: string;
-  children: React.ReactNode;
-}
-
-const Field: React.FC<FieldProps> = ({ id, label, error, children }) => (
-  <div className="space-y-1.5">
-    <label htmlFor={id} className="block text-sm font-semibold text-ink dark:text-paper">
-      {label}
-    </label>
-    {children}
-    {error && (
-      <p id={`${id}-error`} className="text-xs font-medium text-red-600 dark:text-red-400">
-        {error}
-      </p>
-    )}
-  </div>
-);
-
-interface PasswordInputProps {
-  id: string;
-  value: string;
-  onChange: (value: string) => void;
-  autoComplete: string;
-  placeholder?: string;
-  error?: string;
-}
-
-const PasswordInput: React.FC<PasswordInputProps> = ({
-  id,
-  value,
-  onChange,
-  autoComplete,
-  placeholder,
-  error,
-}) => {
-  const [visible, setVisible] = useState(false);
-  return (
-    <div className="relative">
-      <input
-        id={id}
-        type={visible ? 'text' : 'password'}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        autoComplete={autoComplete}
-        placeholder={placeholder}
-        aria-invalid={!!error}
-        aria-describedby={error ? `${id}-error` : undefined}
-        className={`${inputClass(!!error)} pr-12`}
-      />
-      <button
-        type="button"
-        onClick={() => setVisible((v) => !v)}
-        aria-label={visible ? 'Şifrəni gizlət' : 'Şifrəni göstər'}
-        className="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center rounded-lg text-stone-500 hover:text-ink dark:hover:text-paper transition-colors"
-      >
-        {visible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-      </button>
-    </div>
-  );
-};
-
 type FieldErrors = Partial<Record<'fullName' | 'email' | 'password' | 'confirm' | 'terms', string>>;
 
 export const AuthScreen: React.FC<AuthScreenProps> = ({ mode, onSelectScreen, onAuthSuccess }) => {
@@ -96,7 +26,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ mode, onSelectScreen, on
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [grade, setGrade] = useState<Grade>(11);
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [terms, setTerms] = useState(false);
@@ -133,9 +62,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ mode, onSelectScreen, on
     setLoading(true);
     try {
       const user = isRegister
-        ? await register({ fullName, email, password, grade })
+        ? await register({ fullName, email, password })
         : await login(email, password, remember);
-      onAuthSuccess(user);
+      onAuthSuccess(user, isRegister);
     } catch (err) {
       setFormError(
         err instanceof AuthError ? err.message : 'Xəta baş verdi. Bir az sonra yenidən cəhd edin.',
@@ -152,30 +81,29 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ mode, onSelectScreen, on
       <div className="max-w-[1080px] mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
         <div className="grid lg:grid-cols-5 rounded-[24px] overflow-hidden border border-stone-200 dark:border-stone-800 shadow-calm-lg">
           {/* Sol panel: dəyər təklifi (yalnız geniş ekranda) */}
-          <aside className="hidden lg:flex lg:col-span-2 relative flex-col justify-between bg-ink text-white p-10 overflow-hidden">
+          <aside className="hidden lg:flex lg:col-span-2 relative flex-col justify-between bg-brand-50 dark:bg-ink text-ink dark:text-white p-10 overflow-hidden border-r border-stone-200 dark:border-stone-800">
             <div
-              className="absolute inset-0 opacity-25 pointer-events-none"
+              className="absolute inset-0 pointer-events-none opacity-80 dark:opacity-20"
               style={{
-                backgroundImage: 'radial-gradient(circle at 80% 15%, #4a7f68 0%, transparent 60%)',
+                backgroundImage:
+                  'radial-gradient(circle at 85% 10%, var(--color-brand-100) 0%, transparent 60%)',
               }}
             />
             <div className="relative space-y-6">
-              <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-gold bg-white/5 border border-white/10 rounded-full px-3 py-1">
-                Career Arena · Exam Arena
-              </span>
+              <BrandLogo className="w-16 h-16 shadow-calm rounded-[16px]" />
               <h2 className="text-3xl font-extrabold leading-tight tracking-tight text-balance">
                 Hazırlığını ölç, zəif mövzularını tap.
               </h2>
-              <ul className="space-y-3.5 text-sm text-stone-300">
+              <ul className="space-y-3.5 text-sm text-stone-700 dark:text-stone-300">
                 {BENEFITS.map((item) => (
                   <li key={item} className="flex items-start gap-2.5">
-                    <Check className="w-4 h-4 mt-0.5 shrink-0 text-gold" />
+                    <Check className="w-4 h-4 mt-0.5 shrink-0 text-brand dark:text-gold" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <p className="relative text-xs text-stone-400">
+            <p className="relative text-xs text-stone-500 dark:text-stone-400">
               9–11-ci siniflər üçün DİM buraxılış standartına uyğun hazırlıq.
             </p>
           </aside>
@@ -234,32 +162,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ mode, onSelectScreen, on
                     className={inputClass(!!errors.email)}
                   />
                 </Field>
-
-                {isRegister && (
-                  <div className="space-y-1.5">
-                    <span className="block text-sm font-semibold text-ink dark:text-paper">
-                      Sinif
-                    </span>
-                    <div role="radiogroup" aria-label="Sinif" className="grid grid-cols-3 gap-2">
-                      {GRADES.map((g) => (
-                        <button
-                          key={g}
-                          type="button"
-                          role="radio"
-                          aria-checked={grade === g}
-                          onClick={() => setGrade(g)}
-                          className={`h-11 rounded-[12px] border text-sm font-semibold transition-colors ${
-                            grade === g
-                              ? 'border-brand bg-brand text-white dark:border-brand-400 dark:bg-brand-400 dark:text-ink'
-                              : 'border-stone-200 dark:border-stone-800 bg-surface dark:bg-inset-dark text-stone-600 dark:text-stone-300 hover:border-brand-fg'
-                          }`}
-                        >
-                          {g}-cu sinif
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
                 <Field id="password" label="Şifrə" error={errors.password}>
                   <PasswordInput

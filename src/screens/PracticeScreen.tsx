@@ -37,7 +37,7 @@ export const PracticeScreen: React.FC<PracticeScreenProps> = ({ onSelectScreen }
   };
 
   return (
-    <div className="w-full min-h-screen bg-canvas dark:bg-canvas-dark text-ink dark:text-paper py-12 px-4 sm:px-6 lg:px-8 transition-colors">
+    <div className="w-full flex-1 bg-canvas dark:bg-canvas-dark text-ink dark:text-paper py-12 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-[1440px] mx-auto space-y-10">
         {/* HEADER SECTION */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2 border-b border-stone-200 dark:border-stone-800">

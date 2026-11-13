@@ -1,4 +1,5 @@
 import React from 'react';
+import { FiveStepCycle } from '../components/FiveStepCycle';
 import { ScreenType } from '../types';
 import { ProgressRing } from '../components/ProgressRing';
 import { SUBJECTS_DATA } from '../data/examData';
@@ -20,14 +21,15 @@ interface LandingScreenProps {
 
 export const LandingScreen: React.FC<LandingScreenProps> = ({ onSelectScreen }) => {
   return (
-    <div className="w-full min-h-screen bg-canvas dark:bg-canvas-dark text-ink dark:text-paper transition-colors">
-      {/* HERO SECTION (DEEP FOREST BAND) */}
-      <section className="relative bg-ink text-white overflow-hidden py-16 lg:py-24 border-b border-stone-800">
-        {/* Subtle radial lighting for calm depth */}
+    <div className="w-full flex-1 bg-canvas dark:bg-canvas-dark text-ink dark:text-paper transition-colors">
+      {/* HERO SECTION (işıqlı) */}
+      <section className="relative bg-surface dark:bg-ink overflow-hidden py-16 lg:py-24 border-b border-stone-200 dark:border-stone-800">
+        {/* Yumşaq zümrüd işıq */}
         <div
-          className="absolute inset-0 opacity-20 pointer-events-none"
+          className="absolute inset-0 pointer-events-none opacity-70 dark:opacity-20"
           style={{
-            backgroundImage: 'radial-gradient(circle at 75% 25%, #4a7f68 0%, transparent 60%)',
+            backgroundImage:
+              'radial-gradient(circle at 80% 20%, var(--color-brand-100) 0%, transparent 55%), radial-gradient(circle at 5% 100%, var(--color-amber-100) 0%, transparent 40%)',
           }}
         />
 
@@ -36,19 +38,19 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({ onSelectScreen }) 
             {/* Left Column */}
             <div className="lg:col-span-7 space-y-6 text-left">
               {/* Audience pill */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-400/20 text-brand-300 text-xs font-semibold tracking-wide">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-400/20 text-brand-700 dark:text-brand-300 text-xs font-semibold tracking-wide">
                 <span>9–11-ci siniflər üçün</span>
-                <span className="text-brand-400/60">·</span>
+                <span className="text-brand-400">·</span>
                 <span>DİM Buraxılış Standartı</span>
               </div>
 
               {/* Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.1] text-balance">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-ink dark:text-white leading-[1.1] text-balance">
                 Nəticədən inkişafa.
               </h1>
 
               {/* Subtitle */}
-              <p className="text-lg sm:text-xl text-stone-300 max-w-xl font-normal leading-relaxed">
+              <p className="text-lg sm:text-xl text-stone-600 dark:text-stone-300 max-w-xl font-normal leading-relaxed">
                 Mövzu üzrə analiz, aydın izahlar və fərdi məşq planı bir platformada.
               </p>
 
@@ -66,38 +68,38 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({ onSelectScreen }) 
                   onClick={() => {
                     document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="h-12 px-7 rounded-[12px] bg-white/5 hover:bg-white/10 active:scale-[0.98] text-white border border-white/15 font-medium text-base transition-all duration-150 flex items-center gap-2"
+                  className="h-12 px-7 rounded-[12px] bg-white hover:bg-stone-50 dark:bg-white/5 dark:hover:bg-white/10 active:scale-[0.98] text-ink dark:text-white border border-stone-300 dark:border-white/15 font-semibold text-base transition-all duration-150 flex items-center gap-2"
                 >
                   <span>Necə işləyir?</span>
                 </button>
               </div>
 
-              <p className="text-sm text-stone-300">
+              <p className="text-sm text-stone-600 dark:text-stone-300">
                 Hesabın yoxdur?{' '}
                 <button
                   onClick={() => onSelectScreen('register')}
-                  className="font-semibold text-gold hover:underline"
+                  className="font-semibold text-brand-fg hover:underline"
                 >
                   Qeydiyyatdan keç
                 </button>
-                <span className="mx-2 text-stone-500">·</span>
+                <span className="mx-2 text-stone-400">·</span>
                 Artıq hesabın var?{' '}
                 <button
                   onClick={() => onSelectScreen('login')}
-                  className="font-semibold text-gold hover:underline"
+                  className="font-semibold text-brand-fg hover:underline"
                 >
                   Daxil ol
                 </button>
               </p>
 
               {/* Quiet proof indicator */}
-              <div className="pt-2 flex items-center gap-6 text-xs text-stone-400">
+              <div className="pt-2 flex items-center gap-6 text-xs text-stone-500 dark:text-stone-400">
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-sage-300" />
+                  <Check className="w-4 h-4 text-sage-500 dark:text-sage-300" />
                   <span>Ödənişsiz sınaq testi</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-sage-300" />
+                  <Check className="w-4 h-4 text-sage-500 dark:text-sage-300" />
                   <span>Dərhal mövzu analizi</span>
                 </div>
               </div>
@@ -270,50 +272,7 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({ onSelectScreen }) 
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 relative">
-            {[
-              {
-                step: '01',
-                title: 'Qiymətləndirmə',
-                desc: 'Həqiqi imtahan standartında sınaq testi verərək cari bilik səviyyəni ölçürsən.',
-              },
-              {
-                step: '02',
-                title: 'Təhlil',
-                desc: 'Sistem səhvlərini mövzular üzrə qruplaşdırır və boşluqları dəqiq müəyyən edir.',
-              },
-              {
-                step: '03',
-                title: 'Fərdi məşq',
-                desc: 'Yalnız səhv etdiyin tipli suallar üzrə addım-addım hədəfli tapşırıqlar həll edirsən.',
-              },
-              {
-                step: '04',
-                title: 'Yenidən test',
-                desc: 'Öyrəndiyin mövzuları təkrar yoxlayaraq biliklərini möhkəmləndirirsən.',
-              },
-              {
-                step: '05',
-                title: 'İnkişaf',
-                desc: 'Hər həftəlik dinamikanı qrafiklə izləyir və buraxılış imtahanına tam hazır olursan.',
-              },
-            ].map((item) => (
-              <div
-                key={item.step}
-                className="bg-surface dark:bg-surface-dark rounded-[20px] p-6 border border-stone-200 dark:border-stone-800/80 shadow-calm relative flex flex-col justify-between"
-              >
-                <div>
-                  <div className="text-xs font-mono font-bold text-brand-fg dark:text-brand-400 mb-3 tracking-wider">
-                    Addım {item.step}
-                  </div>
-                  <h3 className="text-lg font-bold text-ink dark:text-white mb-2">{item.title}</h3>
-                  <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                    {item.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <FiveStepCycle />
         </div>
       </section>
 
@@ -612,21 +571,21 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({ onSelectScreen }) 
         </div>
       </section>
 
-      {/* NAVY CTA BAND: "Hazırlığa bu gün başla" */}
-      <section className="bg-ink text-white py-16 border-t border-stone-800">
+      {/* CTA band: "Hazırlığa bu gün başla" */}
+      <section className="bg-brand-700 dark:bg-brand-900 text-white py-16">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-2xl mx-auto space-y-6">
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
               Hazırlığa bu gün başla
             </h2>
-            <p className="text-stone-300 text-base">
+            <p className="text-brand-100 text-base">
               20 suallıq pulsuz sınaq testini həll et, zəif mövzularını gör və fərdi inkişaf planını
               dərhal əldə et.
             </p>
             <div className="pt-2">
               <button
                 onClick={() => onSelectScreen('test')}
-                className="h-12 px-8 rounded-[12px] bg-brand hover:bg-brand-700 active:scale-[0.98] text-white font-semibold text-base transition-all duration-150 shadow-calm"
+                className="h-12 px-8 rounded-[12px] bg-white hover:bg-brand-50 active:scale-[0.98] text-brand-700 font-bold text-base transition-all duration-150 shadow-calm"
               >
                 İndi sınaq ver
               </button>
@@ -634,40 +593,6 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({ onSelectScreen }) 
           </div>
         </div>
       </section>
-
-      {/* COMPACT FOOTER */}
-      <footer className="bg-ink-deep text-stone-400 py-10 border-t border-stone-800/80 text-xs">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-white text-sm">Career Arena</span>
-            <span>·</span>
-            <span>Exam Arena Module</span>
-            <span>·</span>
-            <span>© 2026 Bütün hüquqlar qorunur.</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <button
-              onClick={() => onSelectScreen('subjects')}
-              className="hover:text-white transition-colors"
-            >
-              Fənnlər
-            </button>
-            <button
-              onClick={() => onSelectScreen('practice')}
-              className="hover:text-white transition-colors"
-            >
-              Fərdi məşq
-            </button>
-            <button
-              onClick={() => onSelectScreen('dashboard')}
-              className="hover:text-white transition-colors"
-            >
-              İnkişaf paneli
-            </button>
-            <span className="text-stone-600">Bakı, Azərbaycan</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

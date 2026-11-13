@@ -1,49 +1,55 @@
 import React from 'react';
-import { Home, BookOpen, Target, User } from 'lucide-react';
-import { ScreenType } from '../types';
+import { Link } from 'react-router';
+import { BookOpen, Home, Trophy, User } from 'lucide-react';
+import type { ScreenType } from '../types';
+import { SCREEN_PATHS } from '../routes';
 
 interface MobileTabBarProps {
   currentScreen: ScreenType;
-  onSelectScreen: (screen: ScreenType) => void;
   isLoggedIn?: boolean;
 }
 
 export const MobileTabBar: React.FC<MobileTabBarProps> = ({
   currentScreen,
-  onSelectScreen,
   isLoggedIn = false,
 }) => {
-  const tabs = [
-    { id: 'landing' as ScreenType, label: 'Ana səhifə', icon: Home },
-    { id: 'subjects' as ScreenType, label: 'Fənnlər', icon: BookOpen },
-    { id: 'practice' as ScreenType, label: 'Məşq', icon: Target },
+  const tabs: { screen: ScreenType; label: string; icon: typeof Home; match: ScreenType[] }[] = [
+    { screen: 'landing', label: 'Ana səhifə', icon: Home, match: ['landing'] },
+    {
+      screen: 'subjects',
+      label: 'Fənnlər',
+      icon: BookOpen,
+      match: ['subjects', 'sections', 'topics', 'exam-info'],
+    },
+    { screen: 'ranking', label: 'Reytinq', icon: Trophy, match: ['ranking'] },
     isLoggedIn
-      ? { id: 'dashboard' as ScreenType, label: 'Profil', icon: User }
-      : { id: 'login' as ScreenType, label: 'Daxil ol', icon: User },
+      ? { screen: 'profile', label: 'Profil', icon: User, match: ['profile', 'dashboard'] }
+      : { screen: 'login', label: 'Daxil ol', icon: User, match: ['login', 'register'] },
   ];
 
   return (
     <nav
       aria-label="Mobil naviqasiya paneli"
-      className="fixed bottom-0 left-0 right-0 z-40 bg-surface/95 dark:bg-nav-dark/95 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 shadow-calm"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 dark:bg-nav-dark/95 backdrop-blur-md border-t border-stone-200 dark:border-stone-800 shadow-calm"
     >
       <div className="max-w-[420px] mx-auto grid grid-cols-4 px-2 py-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const isActive = currentScreen === tab.id;
+          const isActive = tab.match.includes(currentScreen);
           return (
-            <button
-              key={tab.id}
-              onClick={() => onSelectScreen(tab.id)}
+            <Link
+              key={tab.screen}
+              to={SCREEN_PATHS[tab.screen]}
+              aria-current={isActive ? 'page' : undefined}
               className={`min-h-[48px] flex flex-col items-center justify-center gap-1 transition-colors duration-150 rounded-xl ${
                 isActive
-                  ? 'text-brand-fg dark:text-brand-400 font-semibold'
-                  : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
+                  ? 'text-brand-fg font-semibold'
+                  : 'text-stone-500 dark:text-stone-400 hover:text-ink dark:hover:text-white'
               }`}
             >
               <Icon className="w-5 h-5" strokeWidth={1.75} />
               <span className="text-[11px] leading-tight">{tab.label}</span>
-            </button>
+            </Link>
           );
         })}
       </div>
