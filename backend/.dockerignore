@@ -1,0 +1,14 @@
+**
+!Dockerfile
+!requirements.txt
+!app/
+!app/**
+!migrations/
+!migrations/**
+!scripts/
+!scripts/init_db.py
+!scripts/seed.py
+!wsgi.py
+!wsgi_caddy.py
+**/__pycache__
+**/*.pyc

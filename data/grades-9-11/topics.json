@@ -1,0 +1,242 @@
+{
+  "num-real": {
+    "subject_id": "math",
+    "name": "Həqiqi ədədlər",
+    "order": 1
+  },
+  "num-frac": {
+    "subject_id": "math",
+    "name": "Kəsrlər",
+    "order": 2
+  },
+  "num-pow": {
+    "subject_id": "math",
+    "name": "Dərəcə və qüvvət",
+    "order": 3
+  },
+  "num-abs": {
+    "subject_id": "math",
+    "name": "Mütləq qiymət (Modul)",
+    "order": 4
+  },
+  "num-pct": {
+    "subject_id": "math",
+    "name": "Faizlər",
+    "order": 5
+  },
+  "alg-eq": {
+    "subject_id": "math",
+    "name": "Tənliklər",
+    "order": 6
+  },
+  "alg-sys": {
+    "subject_id": "math",
+    "name": "Tənliklər sistemi",
+    "order": 7
+  },
+  "alg-quad": {
+    "subject_id": "math",
+    "name": "Kvadrat tənliklər",
+    "order": 8
+  },
+  "alg-prog": {
+    "subject_id": "math",
+    "name": "Ardıcıllıqlar",
+    "order": 9
+  },
+  "alg-func": {
+    "subject_id": "math",
+    "name": "Funksiyalar",
+    "order": 10
+  },
+  "geo-basic": {
+    "subject_id": "math",
+    "name": "Üçbucaqlar və bucaqlar",
+    "order": 11
+  },
+  "geo-poly": {
+    "subject_id": "math",
+    "name": "Çoxbucaqlılar",
+    "order": 12
+  },
+  "geo-circle": {
+    "subject_id": "math",
+    "name": "Çevrə və dairə",
+    "order": 13
+  },
+  "geo-trig": {
+    "subject_id": "math",
+    "name": "Trigonometriya",
+    "order": 14
+  },
+  "stat-avg": {
+    "subject_id": "math",
+    "name": "Orta qiymət və moda",
+    "order": 15
+  },
+  "stat-prob": {
+    "subject_id": "math",
+    "name": "Ehtimal nəzəriyyəsi",
+    "order": 16
+  },
+  "aze-sound": {
+    "subject_id": "aze",
+    "name": "Səs və hərf (fonetik təhlil)",
+    "order": 17
+  },
+  "aze-orth": {
+    "subject_id": "aze",
+    "name": "Orfoqrafiya qaydaları",
+    "order": 18
+  },
+  "aze-syn": {
+    "subject_id": "aze",
+    "name": "Sinonim, antonim və omonim",
+    "order": 19
+  },
+  "aze-idiom": {
+    "subject_id": "aze",
+    "name": "Frazeoloji birləşmələr",
+    "order": 20
+  },
+  "aze-isim": {
+    "subject_id": "aze",
+    "name": "İsim",
+    "order": 21
+  },
+  "aze-sifet": {
+    "subject_id": "aze",
+    "name": "Sifət",
+    "order": 22
+  },
+  "aze-say": {
+    "subject_id": "aze",
+    "name": "Say",
+    "order": 23
+  },
+  "aze-evez": {
+    "subject_id": "aze",
+    "name": "Əvəzlik",
+    "order": 24
+  },
+  "aze-feil": {
+    "subject_id": "aze",
+    "name": "Feil",
+    "order": 25
+  },
+  "aze-zerf": {
+    "subject_id": "aze",
+    "name": "Zərf",
+    "order": 26
+  },
+  "aze-qosma": {
+    "subject_id": "aze",
+    "name": "Qoşma",
+    "order": 27
+  },
+  "aze-bag": {
+    "subject_id": "aze",
+    "name": "Bağlayıcı",
+    "order": 28
+  },
+  "aze-edat": {
+    "subject_id": "aze",
+    "name": "Ədat",
+    "order": 29
+  },
+  "aze-modal": {
+    "subject_id": "aze",
+    "name": "Modal sözlər",
+    "order": 30
+  },
+  "aze-nida": {
+    "subject_id": "aze",
+    "name": "Nida",
+    "order": 31
+  },
+  "aze-member": {
+    "subject_id": "aze",
+    "name": "Cümlənin üzvləri",
+    "order": 32
+  },
+  "aze-complex": {
+    "subject_id": "aze",
+    "name": "Mürəkkəb cümlələr",
+    "order": 33
+  },
+  "aze-punct": {
+    "subject_id": "aze",
+    "name": "Durğu işarələri",
+    "order": 34
+  },
+  "eng-tense": {
+    "subject_id": "eng",
+    "name": "Tenses",
+    "order": 35
+  },
+  "eng-cond": {
+    "subject_id": "eng",
+    "name": "Conditionals",
+    "order": 36
+  },
+  "eng-passive": {
+    "subject_id": "eng",
+    "name": "Passive voice",
+    "order": 37
+  },
+  "eng-article": {
+    "subject_id": "eng",
+    "name": "Articles",
+    "order": 38
+  },
+  "eng-quant": {
+    "subject_id": "eng",
+    "name": "Quantifiers",
+    "order": 39
+  },
+  "eng-noun": {
+    "subject_id": "eng",
+    "name": "Nouns",
+    "order": 40
+  },
+  "eng-adj": {
+    "subject_id": "eng",
+    "name": "Adjectives",
+    "order": 41
+  },
+  "eng-pron": {
+    "subject_id": "eng",
+    "name": "Pronouns",
+    "order": 42
+  },
+  "eng-num": {
+    "subject_id": "eng",
+    "name": "Numerals",
+    "order": 43
+  },
+  "eng-adv": {
+    "subject_id": "eng",
+    "name": "Adverbs",
+    "order": 44
+  },
+  "eng-word": {
+    "subject_id": "eng",
+    "name": "Word formation",
+    "order": 45
+  },
+  "eng-phrasal": {
+    "subject_id": "eng",
+    "name": "Phrasal verbs",
+    "order": 46
+  },
+  "eng-prep": {
+    "subject_id": "eng",
+    "name": "Prepositions and Prepositional Phrases",
+    "order": 47
+  },
+  "eng-reading": {
+    "subject_id": "eng",
+    "name": "Reading",
+    "order": 48
+  }
+}

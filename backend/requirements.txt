@@ -1,0 +1,29 @@
+# Production runtime dependencies for the Career Arena · Exam Arena backend.
+# Install into the project venv:  pip3 install -r requirements.txt
+Flask==3.1.3
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.1.0
+Flask-Cors==6.0.5
+SQLAlchemy==2.1.6
+Werkzeug==3.1.9
+alembic==1.20.1
+Mako==1.4.3
+blinker==1.9.0
+itsdangerous==2.2.0
+click==8.1.8
+click-plugins==1.1.1.2
+marshmallow==4.3.1
+argon2-cffi==25.1.0
+argon2-cffi-bindings==25.1.0
+cryptography==50.0.2
+python-dotenv==1.2.2
+email-validator==2.3.0
+redis==8.0.0
+psycopg[binary]==3.3.9
+# Login and registration Turnstile verification uses Python's urllib.request.
+# The browser loads Turnstile from Cloudflare. No extra pip or npm package.
+# Dependencies for the existing image CAPTCHA endpoint:
+Pillow>=10.0.0
+captcha>=0.5.0
+# Production WSGI server (use wsgi.py): `gunicorn -w 4 -b 0.0.0.0:5000 wsgi:application`
+gunicorn==23.0.0
